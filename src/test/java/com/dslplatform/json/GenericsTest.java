@@ -1,7 +1,6 @@
 package com.dslplatform.json;
 
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -19,13 +18,13 @@ public class GenericsTest {
 		}
 	}
 
-	public static class JsonPartial implements JsonObject {
+	public static class JsonPartial implements FastJsonSerializable {
 		@Override
 		public void serialize(JsonWriter writer, boolean minimal) {
 		}
 	}
 
-	public static class JsonFull implements JsonObject {
+	public static class JsonFull implements FastJsonSerializable {
 		@Override
 		public void serialize(JsonWriter writer, boolean minimal) {
 		}

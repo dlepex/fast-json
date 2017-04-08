@@ -60,7 +60,7 @@ public class StreamTest {
 		Assert.assertEquals(1001, total);
 	}
 
-	static class Obj implements JsonObject {
+	static class Obj implements FastJsonSerializable {
 
 		public int x;
 		public double y;
@@ -387,7 +387,7 @@ public class StreamTest {
 		Assert.assertEquals(1.000000000000234d, points[6].getY(), 0);
 	}
 
-	public static class JsonPoint implements JsonObject {
+	public static class JsonPoint implements FastJsonSerializable {
 
 		public double y;
 

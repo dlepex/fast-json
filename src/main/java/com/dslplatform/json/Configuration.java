@@ -6,10 +6,10 @@ package com.dslplatform.json;
  * This will load services registered in META-INF/services/com.dslplatform.json.Configuration file.
  */
 public interface Configuration {
-	/**
-	 * Configure library instance with appropriate readers/writers/etc...
-	 *
-	 * @param json library instance
-	 */
-	void configure(DslJson json);
+    /**
+     * Configure library instance with appropriate readers/writers/etc...
+     *
+     * @param json library instance
+     */
+    void configure(DslJson json);
 }

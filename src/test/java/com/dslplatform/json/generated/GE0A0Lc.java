@@ -6,8 +6,9 @@
 package com.dslplatform.json.generated;
 
 
+import com.dslplatform.json.FastJsonSerializable;
 
-public class GE0A0Lc   implements java.lang.Cloneable, java.io.Serializable, com.dslplatform.json.JsonObject {
+public class GE0A0Lc   implements java.lang.Cloneable, java.io.Serializable, FastJsonSerializable {
 	
 	
 	
