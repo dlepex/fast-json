@@ -3,7 +3,7 @@ apply plugin: 'maven'
 apply plugin: 'idea'
 
 group = 'github.fastjson'
-version = '1.4.0'
+version = '6'
 
 description = """fast json serializer based on dsl-json JsonWriter"""
 
