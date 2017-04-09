@@ -11,6 +11,6 @@ Only a portion of classes from *dsl-json* are used - mostly it is *JsonWriter* w
 
 
 ### Limitations
-*FastJsonSerGenerator* only supports fields (public or not).
-
+- *FastJsonSerGenerator* only supports fields (public or not).
+- JsonWriter is backed by a single byte array - so it's not for streaming huge json documents 
 
