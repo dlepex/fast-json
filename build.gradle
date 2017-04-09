@@ -2,10 +2,10 @@ apply plugin: 'java'
 apply plugin: 'maven'
 apply plugin: 'idea'
 
-group = 'com.dslplatform'
+group = 'github.fastjson'
 version = '1.4.0'
 
-description = """DSL Platform JSON (core)"""
+description = """fast json serializer based on dsl-json JsonWriter"""
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
