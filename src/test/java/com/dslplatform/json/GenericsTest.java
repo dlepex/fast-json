@@ -126,11 +126,11 @@ public class GenericsTest {
 		}
 	}
 
-	static class ArrayWriter implements DslJson.ConverterFactory<JsonWriter.WriteObject> {
+	static class ArrayWriter implements DslJson.ConverterFactory<JsonWriter.Serializer> {
 		@Override
-		public JsonWriter.WriteObject tryCreate(Type manifest, DslJson dslJson) {
+		public JsonWriter.Serializer tryCreate(Type manifest, DslJson dslJson) {
 			if (!int[][].class.equals(manifest)) return null;
-			return new JsonWriter.WriteObject<int[][]>() {
+			return new JsonWriter.Serializer<int[][]>() {
 				@Override
 				public void write(JsonWriter writer, int[][] value) {
 					if (value == null) {

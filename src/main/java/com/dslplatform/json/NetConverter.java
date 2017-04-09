@@ -14,7 +14,7 @@ public abstract class NetConverter {
             return deserializeUri(reader);
         }
     };
-    static final JsonWriter.WriteObject<URI> UriWriter = new JsonWriter.WriteObject<URI>() {
+    static final JsonWriter.Serializer<URI> UriWriter = new JsonWriter.Serializer<URI>() {
         @Override
         public void write(JsonWriter writer, URI value) {
             serializeNullable(value, writer);
@@ -26,7 +26,7 @@ public abstract class NetConverter {
             return deserializeIp(reader);
         }
     };
-    static final JsonWriter.WriteObject<InetAddress> AddressWriter = new JsonWriter.WriteObject<InetAddress>() {
+    static final JsonWriter.Serializer<InetAddress> AddressWriter = new JsonWriter.Serializer<InetAddress>() {
         @Override
         public void write(JsonWriter writer, InetAddress value) {
             serializeNullable(value, writer);

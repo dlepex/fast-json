@@ -38,7 +38,7 @@ public final class JsonWriter extends Writer {
 
     /**
      * Prefer creating JsonWriter through DslJson#newWriter
-     * This instance is safe to use when all type information is known and lookups to custom writers is not required.
+     * This instance is safe to use when all type information is known and lookups to custom sers is not required.
      */
     @Deprecated
     public JsonWriter() {
@@ -395,8 +395,8 @@ public final class JsonWriter extends Writer {
      * @param <T> type
      */
     @FunctionalInterface
-    public interface WriteObject<T> {
-        void write(JsonWriter writer, T value);
+    public interface Serializer<T> {
+        void write(JsonWriter ser, T value);
     }
 
     public <T extends FastJsonSerializable> void serialize(final T[] array) {
@@ -425,7 +425,7 @@ public final class JsonWriter extends Writer {
 
 
 
-    public <T> void serialize(final T[] array, final WriteObject<T> writer) {
+    public <T> void serialize(final T[] array, final Serializer<T> ser) {
         if (array == null) {
             writeNull();
             return;
@@ -433,17 +433,17 @@ public final class JsonWriter extends Writer {
         writeByte(ARRAY_START);
         if (array.length != 0) {
             T item = array[0];
-            writeObject(item, writer);
+            serializeOrNull(item, ser);
             for (int i = 1; i < array.length; i++) {
                 writeByte(COMMA);
                 item = array[i];
-                writeObject(item, writer);
+                serializeOrNull(item, ser);
             }
         }
         writeByte(ARRAY_END);
     }
 
-    public <T> void serialize(final List<T> list, final WriteObject<T> writer) {
+    public <T> void serialize(final List<T> list, final Serializer<T> ser) {
         if (list == null) {
             writeNull();
             return;
@@ -451,17 +451,17 @@ public final class JsonWriter extends Writer {
         writeByte(ARRAY_START);
         if (list.size() != 0) {
             T item = list.get(0);
-            writeObject(item, writer);
+            serializeOrNull(item, ser);
             for (int i = 1; i < list.size(); i++) {
                 writeByte(COMMA);
                 item = list.get(i);
-                writeObject(item, writer);
+                serializeOrNull(item, ser);
             }
         }
         writeByte(ARRAY_END);
     }
 
-    public <T> void serialize(final Collection<T> collection, final WriteObject<T> writer) {
+    public <T> void serialize(final Collection<T> collection, final Serializer<T> ser) {
         if (collection == null) {
             writeNull();
             return;
@@ -470,11 +470,11 @@ public final class JsonWriter extends Writer {
         if (!collection.isEmpty()) {
             final Iterator<T> it = collection.iterator();
             T item = it.next();
-            writeObject(item, writer);
+            serializeOrNull(item, ser);
             while (it.hasNext()) {
                 writeByte(COMMA);
                 item = it.next();
-                writeObject(item, writer);
+                serializeOrNull(item, ser);
             }
         }
         writeByte(ARRAY_END);
@@ -530,6 +530,28 @@ public final class JsonWriter extends Writer {
         }
     }
 
+    public <T> void serialize(final Iterable<T> iter, Serializer<T> ser) {
+        if (iter == null) {
+            writeNull();
+            return;
+        }
+        if (iter instanceof RandomAccess) {
+            writeByte(ARRAY_START);
+            List<T> list = (List<T>) iter;
+            int size = list.size();
+            if (size != 0) {
+                serializeOrNull(list.get(0), ser);
+                for (int i = 1; i < size; i++) {
+                    writeByte(COMMA);
+                    serializeOrNull(list.get(i), ser);
+                }
+            }
+            writeByte(ARRAY_END);
+        } else {
+            serialize(iter.iterator(), ser);
+        }
+    }
+
     public void serialize(final Iterator<? extends FastJsonSerializable> iter) {
         if (iter == null) {
             writeNull();
@@ -538,13 +560,45 @@ public final class JsonWriter extends Writer {
         writeByte(ARRAY_START);
         if (iter.hasNext()) {
             serialize(iter.next());
-            iter.next().serialize(this, false);
-            for(; iter.hasNext();) {
+            iter.forEachRemaining(v -> {
                 writeByte(COMMA);
-                serialize(iter.next());
-            }
+                serialize(v);
+            });
         }
         writeByte(ARRAY_END);
+    }
+
+    public <T> void serialize(final Iterator<T> iter, Serializer<T> w) {
+        if (iter == null) {
+            writeNull();
+            return;
+        }
+        writeByte(ARRAY_START);
+        if (iter.hasNext()) {
+            serializeOrNull(iter.next(), w);
+            iter.forEachRemaining(v -> {
+                writeByte(COMMA);
+                serializeOrNull(v, w);
+            });
+        }
+        writeByte(ARRAY_END);
+    }
+
+
+    public <T> void serializeAsObj(final Iterator<T> iter, Serializer<T> w) {
+        if (iter == null) {
+            writeNull();
+            return;
+        }
+        writeByte(OBJECT_START);
+        if (iter.hasNext()) {
+            serializeOrNull(iter.next(), w);
+            iter.forEachRemaining(v -> {
+                writeByte(COMMA);
+                serializeOrNull(v, w);
+            });
+        }
+        writeByte(OBJECT_END);
     }
 
 
@@ -555,7 +609,15 @@ public final class JsonWriter extends Writer {
             writeNull();
         }
     }
-    public <T>  void writeObject(T o, WriteObject<T> w) {
+
+    public void serializeFieldsOnly(FastJsonSerializable o) {
+        if (o != null) {
+            o.serializeFieldsOnly(this);
+        }
+    }
+
+
+    public <T>  void serializeOrNull(T o, Serializer<T> w) {
         if (o != null) {
             w.write(this, o);
         } else {
@@ -563,7 +625,7 @@ public final class JsonWriter extends Writer {
         }
     }
     public void serialize(String value) {
-        writeString(value);
+       StringConverter.serializeNullable(value, this);
     }
 
     public void serialize(Integer value) {
@@ -599,5 +661,30 @@ public final class JsonWriter extends Writer {
 
     public void serialize(boolean value) {
         BoolConverter.serialize(value, this);
+    }
+
+    public void serialize(Map<String, ? extends FastJsonSerializable> map) {
+        if (map == null) {
+            writeNull();
+            return;
+        }
+        serializeAsObj(map.entrySet().iterator(), (w, e) -> { w.writeField(e.getKey()); w.serialize(e.getValue());});
+    }
+    
+    public <T> void serialize(Map<String, T> map, Serializer<T> ser,  boolean ignoreNulls) {
+        if (map == null) {
+            writeNull();
+            return;
+        }
+        serializeAsObj(map.entrySet().iterator(), (w, e) -> {
+            T val = e.getValue();
+            if (ignoreNulls && val == null) return;
+            w.writeField(e.getKey());
+            serializeOrNull(val, ser);
+        });
+    }
+
+    public <T> void serialize(Map<String, T> map, Serializer<T> ser) {
+        serialize(map, ser, false);
     }
 }

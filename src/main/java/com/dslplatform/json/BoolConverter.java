@@ -13,7 +13,7 @@ public abstract class BoolConverter {
             return deserialize(reader);
         }
     };
-    static final JsonWriter.WriteObject<Boolean> BooleanWriter = new JsonWriter.WriteObject<Boolean>() {
+    static final JsonWriter.Serializer<Boolean> BooleanWriter = new JsonWriter.Serializer<Boolean>() {
         @Override
         public void write(JsonWriter writer, Boolean value) {
             serializeNullable(value, writer);

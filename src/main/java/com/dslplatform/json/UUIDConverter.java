@@ -14,7 +14,7 @@ public abstract class UUIDConverter {
             return deserialize(reader);
         }
     };
-    static final JsonWriter.WriteObject<UUID> Writer = new JsonWriter.WriteObject<UUID>() {
+    static final JsonWriter.Serializer<UUID> Writer = new JsonWriter.Serializer<UUID>() {
         @Override
         public void write(JsonWriter writer, UUID value) {
             serializeNullable(value, writer);

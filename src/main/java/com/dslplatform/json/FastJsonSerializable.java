@@ -13,4 +13,9 @@ public interface FastJsonSerializable {
     }
 
     default void serializeFieldsOnly(JsonWriter jw) {}
+
+
+
+
+
 }

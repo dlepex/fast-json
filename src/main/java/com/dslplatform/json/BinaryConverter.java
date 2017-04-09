@@ -12,7 +12,7 @@ public abstract class BinaryConverter {
             return deserialize(reader);
         }
     };
-    static final JsonWriter.WriteObject<byte[]> Base64Writer = new JsonWriter.WriteObject<byte[]>() {
+    static final JsonWriter.Serializer<byte[]> Base64Writer = new JsonWriter.Serializer<byte[]>() {
         @Override
         public void write(JsonWriter writer, byte[] value) {
             serialize(value, writer);

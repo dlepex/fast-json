@@ -16,7 +16,7 @@ public abstract class NumberConverter {
 			return deserializeDouble(reader);
 		}
 	};
-	static final JsonWriter.WriteObject<Double> DoubleWriter = new JsonWriter.WriteObject<Double>() {
+	static final JsonWriter.Serializer<Double> DoubleWriter = new JsonWriter.Serializer<Double>() {
 		@Override
 		public void write(JsonWriter writer, Double value) {
 			serializeNullable(value, writer);
@@ -28,7 +28,7 @@ public abstract class NumberConverter {
 			return deserializeFloat(reader);
 		}
 	};
-	static final JsonWriter.WriteObject<Float> FloatWriter = new JsonWriter.WriteObject<Float>() {
+	static final JsonWriter.Serializer<Float> FloatWriter = new JsonWriter.Serializer<Float>() {
 		@Override
 		public void write(JsonWriter writer, Float value) {
 			serializeNullable(value, writer);
@@ -40,7 +40,7 @@ public abstract class NumberConverter {
 			return deserializeInt(reader);
 		}
 	};
-	static final JsonWriter.WriteObject<Integer> IntWriter = new JsonWriter.WriteObject<Integer>() {
+	static final JsonWriter.Serializer<Integer> IntWriter = new JsonWriter.Serializer<Integer>() {
 		@Override
 		public void write(JsonWriter writer, Integer value) {
 			serializeNullable(value, writer);
@@ -52,7 +52,7 @@ public abstract class NumberConverter {
 			return deserializeLong(reader);
 		}
 	};
-	static final JsonWriter.WriteObject<Long> LongWriter = new JsonWriter.WriteObject<Long>() {
+	static final JsonWriter.Serializer<Long> LongWriter = new JsonWriter.Serializer<Long>() {
 		@Override
 		public void write(JsonWriter writer, Long value) {
 			serializeNullable(value, writer);
@@ -64,7 +64,7 @@ public abstract class NumberConverter {
 			return deserializeDecimal(reader);
 		}
 	};
-	static final JsonWriter.WriteObject<BigDecimal> DecimalWriter = new JsonWriter.WriteObject<BigDecimal>() {
+	static final JsonWriter.Serializer<BigDecimal> DecimalWriter = new JsonWriter.Serializer<BigDecimal>() {
 		@Override
 		public void write(JsonWriter writer, BigDecimal value) {
 			serializeNullable(value, writer);

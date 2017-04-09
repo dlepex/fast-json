@@ -13,7 +13,7 @@ public abstract class StringConverter {
             return reader.readString();
         }
     };
-    static final JsonWriter.WriteObject<String> Writer = new JsonWriter.WriteObject<String>() {
+    static final JsonWriter.Serializer<String> Writer = new JsonWriter.Serializer<String>() {
         @Override
         public void write(JsonWriter writer, String value) {
             serializeNullable(value, writer);

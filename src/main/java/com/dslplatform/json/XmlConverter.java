@@ -25,7 +25,7 @@ public abstract class XmlConverter {
             return deserialize(reader);
         }
     };
-    static final JsonWriter.WriteObject<Element> Writer = new JsonWriter.WriteObject<Element>() {
+    static final JsonWriter.Serializer<Element> Writer = new JsonWriter.Serializer<Element>() {
         @Override
         public void write(JsonWriter writer, Element value) {
             serializeNullable(value, writer);

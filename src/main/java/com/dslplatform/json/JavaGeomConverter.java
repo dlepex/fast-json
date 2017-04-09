@@ -18,7 +18,7 @@ public abstract class JavaGeomConverter {
             return deserializeLocation(reader);
         }
     };
-    static final JsonWriter.WriteObject<Point2D> LocationWriter = new JsonWriter.WriteObject<Point2D>() {
+    static final JsonWriter.Serializer<Point2D> LocationWriter = new JsonWriter.Serializer<Point2D>() {
         @Override
         public void write(JsonWriter writer, Point2D value) {
             serializeLocationNullable(value, writer);
@@ -30,7 +30,7 @@ public abstract class JavaGeomConverter {
             return deserializePoint(reader);
         }
     };
-    static final JsonWriter.WriteObject<Point> PointWriter = new JsonWriter.WriteObject<Point>() {
+    static final JsonWriter.Serializer<Point> PointWriter = new JsonWriter.Serializer<Point>() {
         @Override
         public void write(JsonWriter writer, Point value) {
             serializePointNullable(value, writer);
@@ -42,13 +42,13 @@ public abstract class JavaGeomConverter {
             return deserializeRectangle(reader);
         }
     };
-    static final JsonWriter.WriteObject<Rectangle2D> RectangleWriter = new JsonWriter.WriteObject<Rectangle2D>() {
+    static final JsonWriter.Serializer<Rectangle2D> RectangleWriter = new JsonWriter.Serializer<Rectangle2D>() {
         @Override
         public void write(JsonWriter writer, Rectangle2D value) {
             serializeRectangleNullable(value, writer);
         }
     };
-    static final JsonWriter.WriteObject<Image> ImageWriter = new JsonWriter.WriteObject<Image>() {
+    static final JsonWriter.Serializer<Image> ImageWriter = new JsonWriter.Serializer<Image>() {
         @Override
         public void write(JsonWriter writer, Image value) {
             serialize(value, writer);

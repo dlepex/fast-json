@@ -78,7 +78,7 @@ public class DslJson<TContext> implements UnknownSerializer {
     public final boolean omitDefaults;
     protected final StringCache keyCache;
     protected final StringCache valuesCache;
-    protected final List<ConverterFactory<JsonWriter.WriteObject>> writerFactories = new ArrayList<ConverterFactory<JsonWriter.WriteObject>>();
+    protected final List<ConverterFactory<JsonWriter.Serializer>> writerFactories = new ArrayList<ConverterFactory<JsonWriter.Serializer>>();
     protected final List<ConverterFactory<JsonReader.ReadObject>> readerFactories = new ArrayList<ConverterFactory<JsonReader.ReadObject>>();
 
     public interface Fallback<TContext> {
@@ -109,7 +109,7 @@ public class DslJson<TContext> implements UnknownSerializer {
         private StringCache valuesCache;
         private boolean withServiceLoader;
         private final List<Configuration> configurations = new ArrayList<Configuration>();
-        private final List<ConverterFactory<JsonWriter.WriteObject>> writerFactories = new ArrayList<ConverterFactory<JsonWriter.WriteObject>>();
+        private final List<ConverterFactory<JsonWriter.Serializer>> writerFactories = new ArrayList<ConverterFactory<JsonWriter.Serializer>>();
         private final List<ConverterFactory<JsonReader.ReadObject>> readerFactories = new ArrayList<ConverterFactory<JsonReader.ReadObject>>();
 
         /**
@@ -203,7 +203,7 @@ public class DslJson<TContext> implements UnknownSerializer {
          * @param writer registered writer factory
          * @return itself
          */
-        public Settings<TContext> resolveWriter(ConverterFactory<JsonWriter.WriteObject> writer) {
+        public Settings<TContext> resolveWriter(ConverterFactory<JsonWriter.Serializer> writer) {
             if (writer == null) throw new IllegalArgumentException("writer can't be null");
             writerFactories.add(writer);
             return this;
@@ -331,7 +331,7 @@ public class DslJson<TContext> implements UnknownSerializer {
         registerReader(LinkedHashMap.class, ObjectConverter.MapReader);
         registerReader(HashMap.class, ObjectConverter.MapReader);
         registerReader(Map.class, ObjectConverter.MapReader);
-        registerWriter(Map.class, new JsonWriter.WriteObject<Map>() {
+        registerWriter(Map.class, new JsonWriter.Serializer<Map>() {
             @Override
             public void write(JsonWriter writer, Map value) {
                 if (value == null) {
@@ -622,7 +622,7 @@ public class DslJson<TContext> implements UnknownSerializer {
         jsonReaders.put(manifest, reader);
     }
 
-    private final HashMap<Type, JsonWriter.WriteObject<?>> jsonWriters = new HashMap<Type, JsonWriter.WriteObject<?>>();
+    private final HashMap<Type, JsonWriter.Serializer<?>> jsonWriters = new HashMap<Type, JsonWriter.Serializer<?>>();
 
     /**
      * Register custom writer for specific type (instance -&gt; JSON conversion).
@@ -637,7 +637,7 @@ public class DslJson<TContext> implements UnknownSerializer {
      * @param writer   provide custom implementation for writing JSON from object instance
      * @param <T>      type
      */
-    public <T> void registerWriter(final Class<T> manifest, final JsonWriter.WriteObject<T> writer) {
+    public <T> void registerWriter(final Class<T> manifest, final JsonWriter.Serializer<T> writer) {
         writerMap.put(manifest, manifest);
         jsonWriters.put(manifest, writer);
     }
@@ -654,7 +654,7 @@ public class DslJson<TContext> implements UnknownSerializer {
      * @param manifest specified type
      * @param writer   provide custom implementation for writing JSON from object instance
      */
-    public void registerWriter(final Type manifest, final JsonWriter.WriteObject<?> writer) {
+    public void registerWriter(final Type manifest, final JsonWriter.Serializer<?> writer) {
         jsonWriters.put(manifest, writer);
     }
 
@@ -670,10 +670,10 @@ public class DslJson<TContext> implements UnknownSerializer {
      * @param manifest specified type
      * @return writer for specified type if found
      */
-    public JsonWriter.WriteObject<?> tryFindWriter(final Type manifest) {
-        JsonWriter.WriteObject writer = jsonWriters.get(manifest);
+    public JsonWriter.Serializer<?> tryFindWriter(final Type manifest) {
+        JsonWriter.Serializer writer = jsonWriters.get(manifest);
         if (writer != null) return writer;
-        for (ConverterFactory<JsonWriter.WriteObject> wrt : writerFactories) {
+        for (ConverterFactory<JsonWriter.Serializer> wrt : writerFactories) {
             writer = wrt.tryCreate(manifest, this);
             if (writer != null) {
                 jsonWriters.put(manifest, writer);
@@ -893,7 +893,7 @@ public class DslJson<TContext> implements UnknownSerializer {
      * @return can serialize this type into JSON
      */
     public final boolean canSerialize(final Type manifest) {
-        JsonWriter.WriteObject writer = jsonWriters.get(manifest);
+        JsonWriter.Serializer writer = jsonWriters.get(manifest);
         if (writer != null) return true;
         if (manifest instanceof Class<?>) {
             final Class<?> content = (Class<?>) manifest;
@@ -928,7 +928,7 @@ public class DslJson<TContext> implements UnknownSerializer {
                     && FastJsonSerializable.class.isAssignableFrom((Class<?>) gat.getGenericComponentType())
                     || tryFindWriter(gat.getGenericComponentType()) != null;
         }
-        for (ConverterFactory<JsonWriter.WriteObject> wrt : writerFactories) {
+        for (ConverterFactory<JsonWriter.Serializer> wrt : writerFactories) {
             if (wrt.tryCreate(manifest, this) != null) {
                 return true;
             }
@@ -1592,70 +1592,70 @@ public class DslJson<TContext> implements UnknownSerializer {
         throw createErrorMessage(manifest);
     }
 
-    private final JsonWriter.WriteObject OBJECT_WRITER = new JsonWriter.WriteObject() {
+    private final JsonWriter.Serializer OBJECT_WRITER = new JsonWriter.Serializer() {
         @Override
         public void write(JsonWriter writer, Object value) {
             ((FastJsonSerializable) value).serialize(writer, omitDefaults);
         }
     };
 
-    private final JsonWriter.WriteObject OBJECT_ARRAY_WRITER = new JsonWriter.WriteObject() {
+    private final JsonWriter.Serializer OBJECT_ARRAY_WRITER = new JsonWriter.Serializer() {
         @Override
         public void write(JsonWriter writer, Object value) {
             serialize(writer, (FastJsonSerializable[]) value);
         }
     };
 
-    private static final JsonWriter.WriteObject BOOL_ARRAY_WRITER = new JsonWriter.WriteObject() {
+    private static final JsonWriter.Serializer BOOL_ARRAY_WRITER = new JsonWriter.Serializer() {
         @Override
         public void write(JsonWriter writer, Object value) {
             BoolConverter.serialize((boolean[]) value, writer);
         }
     };
 
-    private static final JsonWriter.WriteObject INT_ARRAY_WRITER = new JsonWriter.WriteObject() {
+    private static final JsonWriter.Serializer INT_ARRAY_WRITER = new JsonWriter.Serializer() {
         @Override
         public void write(JsonWriter writer, Object value) {
             NumberConverter.serialize((int[]) value, writer);
         }
     };
 
-    private static final JsonWriter.WriteObject LONG_ARRAY_WRITER = new JsonWriter.WriteObject() {
+    private static final JsonWriter.Serializer LONG_ARRAY_WRITER = new JsonWriter.Serializer() {
         @Override
         public void write(JsonWriter writer, Object value) {
             NumberConverter.serialize((long[]) value, writer);
         }
     };
 
-    private static final JsonWriter.WriteObject SHORT_ARRAY_WRITER = new JsonWriter.WriteObject() {
+    private static final JsonWriter.Serializer SHORT_ARRAY_WRITER = new JsonWriter.Serializer() {
         @Override
         public void write(JsonWriter writer, Object value) {
             NumberConverter.serialize((short[]) value, writer);
         }
     };
 
-    private static final JsonWriter.WriteObject FLOAT_ARRAY_WRITER = new JsonWriter.WriteObject() {
+    private static final JsonWriter.Serializer FLOAT_ARRAY_WRITER = new JsonWriter.Serializer() {
         @Override
         public void write(JsonWriter writer, Object value) {
             NumberConverter.serialize((float[]) value, writer);
         }
     };
 
-    private static final JsonWriter.WriteObject DOUBLE_ARRAY_WRITER = new JsonWriter.WriteObject() {
+    private static final JsonWriter.Serializer DOUBLE_ARRAY_WRITER = new JsonWriter.Serializer() {
         @Override
         public void write(JsonWriter writer, Object value) {
             NumberConverter.serialize((double[]) value, writer);
         }
     };
 
-    private static final JsonWriter.WriteObject BYTE_ARRAY_WRITER = new JsonWriter.WriteObject() {
+    private static final JsonWriter.Serializer BYTE_ARRAY_WRITER = new JsonWriter.Serializer() {
         @Override
         public void write(JsonWriter writer, Object value) {
             BinaryConverter.serialize((byte[]) value, writer);
         }
     };
 
-    private static final JsonWriter.WriteObject CHAR_ARRAY_WRITER = new JsonWriter.WriteObject() {
+    private static final JsonWriter.Serializer CHAR_ARRAY_WRITER = new JsonWriter.Serializer() {
         @Override
         public void write(JsonWriter writer, Object value) {
             StringConverter.serialize(new String((char[]) value), writer);
@@ -1663,7 +1663,7 @@ public class DslJson<TContext> implements UnknownSerializer {
     };
 
     @SuppressWarnings("unchecked")
-    private JsonWriter.WriteObject getOrCreateWriter(final Object instance, final Class<?> instanceManifest) throws IOException {
+    private JsonWriter.Serializer getOrCreateWriter(final Object instance, final Class<?> instanceManifest) throws IOException {
         if (instance instanceof FastJsonSerializable) {
             return OBJECT_WRITER;
         }
@@ -1676,7 +1676,7 @@ public class DslJson<TContext> implements UnknownSerializer {
                 return OBJECT_WRITER;
             }
         }
-        final JsonWriter.WriteObject simpleWriter = tryFindWriter(manifest);
+        final JsonWriter.Serializer simpleWriter = tryFindWriter(manifest);
         if (simpleWriter != null) {
             return simpleWriter;
         }
@@ -1701,10 +1701,10 @@ public class DslJson<TContext> implements UnknownSerializer {
                     return CHAR_ARRAY_WRITER;
                 }
             } else {
-                final JsonWriter.WriteObject elementWriter = tryFindWriter(elementManifest);
+                final JsonWriter.Serializer elementWriter = tryFindWriter(elementManifest);
                 if (elementWriter != null) {
                     //TODO: cache writer for next lookup
-                    return new JsonWriter.WriteObject() {
+                    return new JsonWriter.Serializer() {
                         @Override
                         public void write(JsonWriter writer, Object value) {
                             writer.serialize((Object[]) value, elementWriter);
@@ -1714,7 +1714,7 @@ public class DslJson<TContext> implements UnknownSerializer {
             }
         }
         if (instance instanceof Collection || Collection.class.isAssignableFrom(manifest)) {
-            return new JsonWriter.WriteObject() {
+            return new JsonWriter.Serializer() {
                 @Override
                 public void write(JsonWriter writer, final Object value) {
                     final Collection items = (Collection) value;
@@ -1742,7 +1742,7 @@ public class DslJson<TContext> implements UnknownSerializer {
                     } else if (FastJsonSerializable.class.isAssignableFrom(baseType)) {
                         serialize(writer, (Collection<FastJsonSerializable>) items);
                     } else {
-                        final JsonWriter.WriteObject elementWriter = tryFindWriter(baseType);
+                        final JsonWriter.Serializer elementWriter = tryFindWriter(baseType);
                         if (elementWriter != null) {
                             writer.serialize(items, elementWriter);
                         } else if (fallback != null) {
@@ -1802,7 +1802,7 @@ public class DslJson<TContext> implements UnknownSerializer {
         final JsonWriter buffer = writer == null ? new JsonWriter(this) : writer;
         T item = iterator.next();
         Class<?> lastManifest = null;
-        JsonWriter.WriteObject lastWriter = null;
+        JsonWriter.Serializer lastWriter = null;
         if (item != null) {
             lastManifest = item.getClass();
             lastWriter = getOrCreateWriter(item, lastManifest);
@@ -1872,7 +1872,7 @@ public class DslJson<TContext> implements UnknownSerializer {
             throw new IllegalArgumentException("stream can't be null");
         }
         final JsonWriter buffer = writer == null ? new JsonWriter(this) : writer;
-        final JsonWriter.WriteObject instanceWriter = getOrCreateWriter(null, manifest);
+        final JsonWriter.Serializer instanceWriter = getOrCreateWriter(null, manifest);
         stream.write(JsonWriter.ARRAY_START);
         T item = iterator.next();
         if (item != null) {
@@ -2051,7 +2051,7 @@ public class DslJson<TContext> implements UnknownSerializer {
             serialize(writer, (FastJsonSerializable[]) value);
             return true;
         }
-        final JsonWriter.WriteObject<Object> simpleWriter = (JsonWriter.WriteObject<Object>) tryFindWriter(manifest);
+        final JsonWriter.Serializer<Object> simpleWriter = (JsonWriter.Serializer<Object>) tryFindWriter(manifest);
         if (simpleWriter != null) {
             simpleWriter.write(writer, value);
             return true;
@@ -2089,7 +2089,7 @@ public class DslJson<TContext> implements UnknownSerializer {
                 }
                 return true;
             } else {
-                final JsonWriter.WriteObject<Object> elementWriter = (JsonWriter.WriteObject<Object>) tryFindWriter(elementManifest);
+                final JsonWriter.Serializer<Object> elementWriter = (JsonWriter.Serializer<Object>) tryFindWriter(elementManifest);
                 if (elementWriter != null) {
                     writer.serialize( (Object[]) value, elementWriter);
                     return true;
@@ -2129,7 +2129,7 @@ public class DslJson<TContext> implements UnknownSerializer {
                 serialize(writer, (Collection<FastJsonSerializable>) items);
                 return true;
             }
-            final JsonWriter.WriteObject<Object> elementWriter = (JsonWriter.WriteObject<Object>) tryFindWriter(baseType);
+            final JsonWriter.Serializer<Object> elementWriter = (JsonWriter.Serializer<Object>) tryFindWriter(baseType);
             if (elementWriter != null) {
                 writer.serialize(items, elementWriter);
                 return true;
@@ -2177,7 +2177,7 @@ public class DslJson<TContext> implements UnknownSerializer {
      * JsonWriter contains a growable byte[] where JSON will be serialized.
      * After serialization JsonWriter can be copied into OutputStream or it's byte[] can be obtained
      * <p>
-     * For best performance reuse `JsonWriter` or even better call `JsonWriter.WriteObject` directly
+     * For best performance reuse `JsonWriter` or even better call `JsonWriter.Serializer` directly
      *
      * @param writer where to write resulting JSON
      * @param value  object instance to serialize
