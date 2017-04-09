@@ -1,69 +1,78 @@
-package com.dslplatform.json;
+package github.fastjson;
+
+import com.dslplatform.json.*;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Writer;
 import java.nio.charset.Charset;
 import java.util.*;
+import java.util.function.Function;
 
 /**
- * DslJson writes JSON into an byte[] target.
- * This class is used for growing such byte[] buffer
- * and providing other low level methods for JSON serialization.
+ * This class is used for growing such byte[] buffer (grow factor = 1.5)
  * <p>
  * After the processing is done, JSON can be copied to target OutputStream or resulting byte[] can be used directly.
  * <p>
- * For maximum performance JsonWriter instances should be reused.
  * They should not be shared across threads (concurrently) so for Thread reuse it's best to use patterns such as ThreadLocal.
  */
 public final class JsonWriter extends Writer {
 
     private static final Charset UTF_8 = Charset.forName("UTF-8");
 
-    final byte[] ensureCapacity(final int free) {
+    public byte[] ensureCapacity(final int free) {
         if (position + free >= result.length) {
             result = Arrays.copyOf(result, result.length + (result.length << 1) + free);
         }
         return result;
     }
 
-    void advance(int size) {
+    public void advance(int size) {
         position += size;
     }
 
     private int position;
     private byte[] result;
 
-    private final UnknownSerializer unknownSerializer;
+    public final UnknownSerializer unknownSerializer;
 
-    /**
-     * Prefer creating JsonWriter through DslJson#newWriter
-     * This instance is safe to use when all type information is known and lookups to custom sers is not required.
-     */
+    // prefer this constructor.
+    // buf instances may be put in thread-local to reduce gc pressure
+    public static JsonWriter create(final byte[] buf) {
+        return new JsonWriter(buf, (w, o) -> {
+            throw new IOException("serializing unknown obj: " + o.getClass());
+        });
+    }
+
+
+
+    //// pre-allocated lambdas :
+
+    public static final Serializer<String> serOfString = JsonWriter::serialize;
+    public static final Serializer<String> serOfAscii = JsonWriter::writeAsciiOrNull;
+    public static final Serializer<Integer> serOfInt = JsonWriter::serialize;
+    public static final Serializer<Long> serOfLong = JsonWriter::serialize;
+    public static final Serializer<Double> serOfDouble = JsonWriter::serialize;
+    public static final Serializer<Boolean> serOfBool = JsonWriter::serialize;
+
     @Deprecated
     public JsonWriter() {
         this(512, null);
     }
-
-    JsonWriter(final UnknownSerializer unknownSerializer) {
+    @Deprecated
+    public JsonWriter(final UnknownSerializer unknownSerializer) {
         this(512, unknownSerializer);
     }
-
-    JsonWriter(final int size, final UnknownSerializer unknownSerializer) {
+    @Deprecated
+    public JsonWriter(final int size, final UnknownSerializer unknownSerializer) {
         this(new byte[size], unknownSerializer);
     }
-
+    @Deprecated
     public JsonWriter(final byte[] result, final UnknownSerializer unknownSerializer) {
         this.result = result;
         this.unknownSerializer = unknownSerializer;
     }
 
-    public JsonWriter(final byte[] result) {
-        this.result = result;
-        this.unknownSerializer = (w, o) -> {
-            throw new IOException("serializing unknown obj: " + o.getClass());
-        };
-    }
 
     public static final byte OBJECT_START = '{';
     public static final byte OBJECT_END = '}';
@@ -345,7 +354,7 @@ public final class JsonWriter extends Writer {
             result = Arrays.copyOf(result, result.length + result.length / 2 + (buf.length << 1) + 2);
         }
         result[position++] = '"';
-        position += Base64.encodeToBytes(buf, result, position);
+        position += JsonBase64.encodeToBytes(buf, result, position);
         result[position++] = '"';
     }
 
@@ -406,7 +415,7 @@ public final class JsonWriter extends Writer {
 
     /**
      * Custom objects can be serialized based on the implementation specified through this interface.
-     * Annotation processor creates custom deserializers at compile time and registers them into DslJson.
+     * Annotation processor creates custom deserializers at compile time and registers them into DeprecatedDslJson.
      * @param <T> type
      */
     @FunctionalInterface
@@ -496,6 +505,7 @@ public final class JsonWriter extends Writer {
     }
 
     public void serializeObject(final Object value) {
+        // todo dynamic ser
         if (value == null) {
             writeNull();
         } else if (unknownSerializer != null) {
@@ -506,7 +516,7 @@ public final class JsonWriter extends Writer {
             }
         } else {
             throw new SerializationException("Unable to serialize: " + value.getClass() + ".\n" +
-                    "Check that JsonWriter was created through DslJson#newWriter.");
+                    "Check that JsonWriter was created through DeprecatedDslJson#newWriter.");
         }
     }
 
@@ -589,13 +599,7 @@ public final class JsonWriter extends Writer {
             return;
         }
         writeByte(ARRAY_START);
-        if (iter.hasNext()) {
-            serializeOrNull(iter.next(), w);
-            iter.forEachRemaining(v -> {
-                writeByte(COMMA);
-                serializeOrNull(v, w);
-            });
-        }
+        serializeUnwrapped(iter, w);
         writeByte(ARRAY_END);
     }
 
@@ -606,6 +610,14 @@ public final class JsonWriter extends Writer {
             return;
         }
         writeByte(OBJECT_START);
+        serializeUnwrapped(iter, w);
+        writeByte(OBJECT_END);
+    }
+
+    public <T> void serializeUnwrapped(final Iterator<T> iter, Serializer<T> w) {
+        if (iter == null) {
+            return;
+        }
         if (iter.hasNext()) {
             serializeOrNull(iter.next(), w);
             iter.forEachRemaining(v -> {
@@ -613,7 +625,6 @@ public final class JsonWriter extends Writer {
                 serializeOrNull(v, w);
             });
         }
-        writeByte(OBJECT_END);
     }
 
 
@@ -625,9 +636,9 @@ public final class JsonWriter extends Writer {
         }
     }
 
-    public void serializeFieldsOnly(FastJsonSerializable o) {
+    public void serializeUnwrapped(FastJsonSerializable o) {
         if (o != null) {
-            o.serializeFieldsOnly(this);
+            o.serializeUnwrapped(this);
         }
     }
 
@@ -682,30 +693,50 @@ public final class JsonWriter extends Writer {
             writeNull();
             return;
         }
-        serializeAsObj(map.entrySet().iterator(), (w, e) -> { w.writeField(e.getKey()); w.serialize(e.getValue());});
+        serializeAsObj(map.entrySet().iterator(), (w, e) -> {w.writeField(e.getKey()); w.serialize(e.getValue());});
     }
 
-    public <T> void serialize(Map<String, T> map, Serializer<T> ser,  boolean ignoreNulls) {
+    public void serializeUnwrapped(Map<String, ? extends FastJsonSerializable> map) {
+        serializeUnwrapped(map.entrySet().iterator(), (w, e) -> {w.writeField(e.getKey()); w.serialize(e.getValue());});
+    }
+
+    public <T> void serialize(Map<String, T> map, Serializer<T> ser) {
+        if (map == null) {
+            writeNull();
+            return;
+        }
+        serializeAsObj(map.entrySet().iterator(), (w, e) -> {
+            w.writeField(e.getKey());
+            serializeOrNull(e.getValue(), ser);
+        });
+    }
+
+
+
+    public <K, T> void serialize(Map<K, T> map, Function<K, String> stringer, Serializer<T> ser) {
         if (map == null) {
             writeNull();
             return;
         }
         serializeAsObj(map.entrySet().iterator(), (w, e) -> {
             T val = e.getValue();
-            if (ignoreNulls && val == null) return;
-            w.writeField(e.getKey());
+            w.writeField(stringer.apply(e.getKey()));
             serializeOrNull(val, ser);
         });
     }
 
-    public <T> void serialize(Map<String, T> map, Serializer<T> ser) {
-        serialize(map, ser, false);
+
+
+    public <K, T> void serializeUnwrapped(Map<K, T> map, Function<K, String> stringer, Serializer<T> ser) {
+        serializeUnwrapped(map.entrySet().iterator(), (w, e) -> {
+            T val = e.getValue();
+            w.writeField(stringer.apply(e.getKey()));
+            serializeOrNull(val, ser);
+        });
     }
 
-    public static final Serializer<String> strSerializer = JsonWriter::serialize;
-    public static final Serializer<String> asciiSerializer = JsonWriter::writeAsciiOrNull;
-    public static final Serializer<Integer> intSerializer = JsonWriter::serialize;
-    public static final Serializer<Long> longSerializer = JsonWriter::serialize;
-    public static final Serializer<Double> doubleSerializer = JsonWriter::serialize;
-    public static final Serializer<Boolean> boolSerializer = JsonWriter::serialize;
+    public <T> void serializeUnwrapped(Map<String, T> map, Serializer<T> ser) {
+        serializeUnwrapped(map, Object::toString, ser);
+    }
+
 }

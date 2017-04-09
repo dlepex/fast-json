@@ -1,5 +1,8 @@
 package com.dslplatform.json;
 
+import github.fastjson.FastJsonSerializable;
+import github.fastjson.JsonBase64;
+
 import javax.xml.bind.DatatypeConverter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -21,7 +24,7 @@ public final class JsonStreamReader<TContext> extends JsonReader<TContext> {
 
     /**
      * Create reusable stream reader.
-     * Prefer creating stream reader through DslJson#newReader since it will pass several arguments (such as key/string value cache)
+     * Prefer creating stream reader through DeprecatedDslJson#newReader since it will pass several arguments (such as key/string value cache)
      * First chunk will be populated.
      * First byte will not be read.
      * It will allocate new char[64] for string buffer
@@ -125,7 +128,7 @@ public final class JsonStreamReader<TContext> extends JsonReader<TContext> {
     }
 
     public byte[] readBase64() throws IOException {
-        if (Base64.findEnd(buffer, currentIndex) == buffer.length) {
+        if (JsonBase64.findEnd(buffer, currentIndex) == buffer.length) {
             final int len = parseString();
             return DatatypeConverter.parseBase64Binary(new String(chars, 0, len));
         }

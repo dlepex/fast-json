@@ -6,7 +6,8 @@
 package com.dslplatform.json.generated;
 
 
-import com.dslplatform.json.FastJsonSerializable;
+import github.fastjson.FastJsonSerializable;
+import github.fastjson.JsonWriter;
 
 public class GA0A0Lc   implements java.lang.Cloneable, java.io.Serializable, FastJsonSerializable {
 	
@@ -121,17 +122,17 @@ public class GA0A0Lc   implements java.lang.Cloneable, java.io.Serializable, Fas
 	}
 
 	
-	public void serialize(final com.dslplatform.json.JsonWriter sw, final boolean minimal) {
-		sw.writeByte(com.dslplatform.json.JsonWriter.OBJECT_START);
+	public void serialize(final JsonWriter sw, final boolean minimal) {
+		sw.writeByte(JsonWriter.OBJECT_START);
 		if (minimal) {
 			__serializeJsonObjectMinimal(this, sw, false);
 		} else {
 			__serializeJsonObjectFull(this, sw, false);
 		}
-		sw.writeByte(com.dslplatform.json.JsonWriter.OBJECT_END);
+		sw.writeByte(JsonWriter.OBJECT_END);
 	}
 
-	static void __serializeJsonObjectMinimal(final GA0A0Lc self, com.dslplatform.json.JsonWriter sw, boolean hasWrittenProperty) {
+	static void __serializeJsonObjectMinimal(final GA0A0Lc self, JsonWriter sw, boolean hasWrittenProperty) {
 		
 		sw.writeAscii("\"URI\":");
 			com.dslplatform.json.StringConverter.serializeShort(self.URI, sw);
@@ -145,11 +146,11 @@ public class GA0A0Lc   implements java.lang.Cloneable, java.io.Serializable, Fas
 			sw.writeAscii(",\"gE0A0Lc\":{", 12);
 			
 					GE0A0Lc.__serializeJsonObjectMinimal(self.gE0A0Lc, sw, false);
-					sw.writeByte(com.dslplatform.json.JsonWriter.OBJECT_END);
+					sw.writeByte(JsonWriter.OBJECT_END);
 		}
 	}
 
-	static void __serializeJsonObjectFull(final GA0A0Lc self, com.dslplatform.json.JsonWriter sw, boolean hasWrittenProperty) {
+	static void __serializeJsonObjectFull(final GA0A0Lc self, JsonWriter sw, boolean hasWrittenProperty) {
 		
 		sw.writeAscii("\"URI\":");
 			com.dslplatform.json.StringConverter.serializeShort(self.URI, sw);
@@ -163,7 +164,7 @@ public class GA0A0Lc   implements java.lang.Cloneable, java.io.Serializable, Fas
 			sw.writeAscii(",\"gE0A0Lc\":{", 12);
 			
 					GE0A0Lc.__serializeJsonObjectFull(self.gE0A0Lc, sw, false);
-					sw.writeByte(com.dslplatform.json.JsonWriter.OBJECT_END);
+					sw.writeByte(JsonWriter.OBJECT_END);
 		} else {
 			sw.writeAscii(",\"gE0A0Lc\":null", 15);
 		}

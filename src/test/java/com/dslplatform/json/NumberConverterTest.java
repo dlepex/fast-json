@@ -1,5 +1,6 @@
 package com.dslplatform.json;
 
+import github.fastjson.JsonWriter;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -233,7 +234,7 @@ public class NumberConverterTest {
 				"      \"conf\": {\"1\": [1,true]\n" +
 				"      }\n" +
 				"    }]}";
-		DslJson json = new DslJson();
+		DeprecatedDslJson json = new DeprecatedDslJson();
 		Map result = (Map) json.deserialize(Map.class, input.getBytes(), input.length());
 		Assert.assertNotNull(result);
 	}
@@ -274,7 +275,7 @@ public class NumberConverterTest {
 				"\"minLongMinusOneAsBigDecimal\":" +         minLongMinusOneAsBigDecimal + "\n" +
 		"}";
 
-		DslJson json = new DslJson();
+		DeprecatedDslJson json = new DeprecatedDslJson();
 		Map result = (Map) json.deserialize(Map.class, input.getBytes("UTF-8"), input.length());
 		Assert.assertEquals(maxIntAsLong, result.get("maxIntAsLong"));
 		Assert.assertEquals(maxIntAsLong, result.get("maxIntAsLongWithSign"));

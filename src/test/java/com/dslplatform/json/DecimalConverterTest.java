@@ -1,5 +1,6 @@
 package com.dslplatform.json;
 
+import github.fastjson.JsonWriter;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -113,7 +114,7 @@ public class DecimalConverterTest {
 		final String plainForm = check.toPlainString();
 		final byte[] body = plainForm.getBytes("UTF-8");
 
-		DslJson<Object> json = new DslJson<Object>();
+		DeprecatedDslJson<Object> json = new DeprecatedDslJson<Object>();
 
 		final BigDecimal result = json.deserialize(BigDecimal.class, body, body.length);
 		Assert.assertEquals(check, result);
@@ -126,7 +127,7 @@ public class DecimalConverterTest {
 		final String plainForm = check.toPlainString() + " ";
 		final byte[] body = plainForm.getBytes("UTF-8");
 
-		DslJson<Object> json = new DslJson<Object>();
+		DeprecatedDslJson<Object> json = new DeprecatedDslJson<Object>();
 
 		final BigDecimal result = json.deserialize(BigDecimal.class, body, body.length);
 		Assert.assertEquals(check, result);
@@ -139,7 +140,7 @@ public class DecimalConverterTest {
 		final String plainForm = "\"" + check.toPlainString();
 		final byte[] body = plainForm.getBytes("UTF-8");
 
-		DslJson<Object> json = new DslJson<Object>();
+		DeprecatedDslJson<Object> json = new DeprecatedDslJson<Object>();
 
 		try {
 			json.deserialize(BigDecimal.class, body, body.length);
@@ -152,7 +153,7 @@ public class DecimalConverterTest {
 	public void quoteOverflow() throws IOException {
 		final byte[] body = "123123123123123123123123123123".getBytes("UTF-8");
 
-		DslJson<Object> json = new DslJson<Object>();
+		DeprecatedDslJson<Object> json = new DeprecatedDslJson<Object>();
 
 		try {
 			json.deserialize(Integer.class, body, body.length);

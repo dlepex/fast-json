@@ -6,7 +6,8 @@
 package com.dslplatform.json.generated;
 
 
-import com.dslplatform.json.FastJsonSerializable;
+import github.fastjson.FastJsonSerializable;
+import github.fastjson.JsonWriter;
 
 public class GE0A0Lc   implements java.lang.Cloneable, java.io.Serializable, FastJsonSerializable {
 	
@@ -124,17 +125,17 @@ public class GE0A0Lc   implements java.lang.Cloneable, java.io.Serializable, Fas
 	}
 
 	
-	public void serialize(final com.dslplatform.json.JsonWriter sw, final boolean minimal) {
-		sw.writeByte(com.dslplatform.json.JsonWriter.OBJECT_START);
+	public void serialize(final JsonWriter sw, final boolean minimal) {
+		sw.writeByte(JsonWriter.OBJECT_START);
 		if (minimal) {
 			__serializeJsonObjectMinimal(this, sw, false);
 		} else {
 			__serializeJsonObjectFull(this, sw, false);
 		}
-		sw.writeByte(com.dslplatform.json.JsonWriter.OBJECT_END);
+		sw.writeByte(JsonWriter.OBJECT_END);
 	}
 
-	static void __serializeJsonObjectMinimal(final GE0A0Lc self, com.dslplatform.json.JsonWriter sw, boolean hasWrittenProperty) {
+	static void __serializeJsonObjectMinimal(final GE0A0Lc self, JsonWriter sw, boolean hasWrittenProperty) {
 		
 		sw.writeAscii("\"URI\":");
 			com.dslplatform.json.StringConverter.serializeShort(self.URI, sw);
@@ -144,10 +145,10 @@ public class GE0A0Lc   implements java.lang.Cloneable, java.io.Serializable, Fas
 			sw.writeAscii(",\"p0A0Lc\":[", 11);
 			com.dslplatform.json.JavaGeomConverter.serializeLocationNullable(_tmp_p0A0Lc_[0], sw);
 			for(int i = 1; i < _tmp_p0A0Lc_.length; i++) {
-				sw.writeByte(com.dslplatform.json.JsonWriter.COMMA);
+				sw.writeByte(JsonWriter.COMMA);
 				com.dslplatform.json.JavaGeomConverter.serializeLocationNullable(_tmp_p0A0Lc_[i], sw);
 			}
-			sw.writeByte(com.dslplatform.json.JsonWriter.ARRAY_END);
+			sw.writeByte(JsonWriter.ARRAY_END);
 		}
 		else if(self.p0A0Lc != null) sw.writeAscii(",\"p0A0Lc\":[]", 12);
 		
@@ -157,7 +158,7 @@ public class GE0A0Lc   implements java.lang.Cloneable, java.io.Serializable, Fas
 			}
 	}
 
-	static void __serializeJsonObjectFull(final GE0A0Lc self, com.dslplatform.json.JsonWriter sw, boolean hasWrittenProperty) {
+	static void __serializeJsonObjectFull(final GE0A0Lc self, JsonWriter sw, boolean hasWrittenProperty) {
 		
 		sw.writeAscii("\"URI\":");
 			com.dslplatform.json.StringConverter.serializeShort(self.URI, sw);
@@ -167,10 +168,10 @@ public class GE0A0Lc   implements java.lang.Cloneable, java.io.Serializable, Fas
 			sw.writeAscii(",\"p0A0Lc\":[", 11);
 			com.dslplatform.json.JavaGeomConverter.serializeLocationNullable(_tmp_p0A0Lc_[0], sw);
 			for(int i = 1; i < _tmp_p0A0Lc_.length; i++) {
-				sw.writeByte(com.dslplatform.json.JsonWriter.COMMA);
+				sw.writeByte(JsonWriter.COMMA);
 				com.dslplatform.json.JavaGeomConverter.serializeLocationNullable(_tmp_p0A0Lc_[i], sw);
 			}
-			sw.writeByte(com.dslplatform.json.JsonWriter.ARRAY_END);
+			sw.writeByte(JsonWriter.ARRAY_END);
 		}
 		else if(self.p0A0Lc != null) sw.writeAscii(",\"p0A0Lc\":[]", 12);
 		else sw.writeAscii(",\"p0A0Lc\":null", 14);

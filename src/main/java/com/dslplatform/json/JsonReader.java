@@ -1,5 +1,8 @@
 package com.dslplatform.json;
 
+import github.fastjson.FastJsonSerializable;
+import github.fastjson.JsonBase64;
+
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -58,7 +61,7 @@ public class JsonReader<TContext> {
     }
 
     /**
-     * Prefer creating reader through DslJson#newReader since it will pass several arguments (such as key/string value cache)
+     * Prefer creating reader through DeprecatedDslJson#newReader since it will pass several arguments (such as key/string value cache)
      * First byte will not be read.
      * It will allocate new char[64] for string buffer.
      * Key and string vales cache will be null.
@@ -671,12 +674,12 @@ public class JsonReader<TContext> {
             throw new IOException("Expecting '\"' at position " + positionInStream() + " at base64 start. Found " + (char) last);
         }
         final int start = currentIndex;
-        currentIndex = Base64.findEnd(buffer, start);
+        currentIndex = JsonBase64.findEnd(buffer, start);
         last = buffer[currentIndex++];
         if (last != '"') {
             throw new IOException("Expecting '\"' at position " + positionInStream() + " at base64 end. Found " + (char) last);
         }
-        return Base64.decodeFast(buffer, start, currentIndex - 1);
+        return JsonBase64.decodeFast(buffer, start, currentIndex - 1);
     }
 
     /**
@@ -698,7 +701,7 @@ public class JsonReader<TContext> {
 
     /**
      * Custom objects can be deserialized based on the implementation specified through this interface.
-     * Annotation processor creates custom deserializers at compile time and registers them into DslJson.
+     * Annotation processor creates custom deserializers at compile time and registers them into DeprecatedDslJson.
      *
      * @param <T> type
      */

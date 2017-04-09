@@ -1,4 +1,4 @@
-package com.dslplatform.json;
+package github.fastjson;
 
 import java.util.Arrays;
 
@@ -9,7 +9,7 @@ import java.util.Arrays;
  * on small arrays (10 - 1000 bytes) and 2-3 times as fast on larger arrays (10000 - 1000000 bytes)
  * compared to <code>sun.misc.Encoder()/Decoder()</code>.<br><br>
  * <p>
- * On byte arrays the encoder is about 20% faster than Jakarta Commons Base64 Codec for encode and
+ * On byte arrays the encoder is about 20% faster than Jakarta Commons JsonBase64 Codec for encode and
  * about 50% faster for decoding large arrays. This implementation is about twice as fast on very small
  * arrays (&lt 30 bytes). If source/destination is a <code>String</code> this
  * version is about three times as fast due to the fact that the Commons Codec result has to be recoded
@@ -71,7 +71,7 @@ import java.util.Arrays;
  * @version 2.2
  */
 
-abstract class Base64 {
+public abstract class JsonBase64 {
     private static final char[] CA = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/".toCharArray();
     private static final byte[] BA;
     private static final int[] IA = new int[256];
@@ -88,7 +88,7 @@ abstract class Base64 {
         }
     }
 
-    static int encodeToChar(byte[] sArr, char[] dArr, final int start) {
+    public static int encodeToChar(byte[] sArr, char[] dArr, final int start) {
         final int sLen = sArr.length;
 
         final int eLen = (sLen / 3) * 3;              // Length of even 24-bits.
@@ -122,7 +122,7 @@ abstract class Base64 {
         return dLen;
     }
 
-    static int encodeToBytes(byte[] sArr, byte[] dArr, final int start) {
+    public static int encodeToBytes(byte[] sArr, byte[] dArr, final int start) {
         final int sLen = sArr.length;
 
         final int eLen = (sLen / 3) * 3;              // Length of even 24-bits.
@@ -156,7 +156,7 @@ abstract class Base64 {
         return dLen;
     }
 
-    static int findEnd(final byte[] sArr, final int start) {
+    public static int findEnd(final byte[] sArr, final int start) {
         for (int i = start; i < sArr.length; i++)
             if (IA[sArr[i] & 0xff] < 0)
                 return i;
@@ -165,7 +165,7 @@ abstract class Base64 {
 
     private final static byte[] EMPTY_ARRAY = new byte[0];
 
-    static byte[] decodeFast(final byte[] sArr, final int start, final int end) {
+    public static byte[] decodeFast(final byte[] sArr, final int start, final int end) {
         // Check special case
         int sLen = end - start;
         if (sLen == 0)

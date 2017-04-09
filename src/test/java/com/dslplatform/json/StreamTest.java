@@ -1,6 +1,8 @@
 package com.dslplatform.json;
 
 import com.dslplatform.json.generated.GA0A0Lc;
+import github.fastjson.FastJsonSerializable;
+import github.fastjson.JsonWriter;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -29,7 +31,7 @@ public class StreamTest {
 		sb.append("]");
 		byte[] bytes = sb.toString().getBytes();
 		ByteArrayInputStream is = new ByteArrayInputStream(bytes);
-		DslJson<Object> json = new DslJson<Object>();
+		DeprecatedDslJson<Object> json = new DeprecatedDslJson<Object>();
 		Iterator<Map> result = json.iterateOver(Map.class, is, new byte[512]);
 		int total = 0;
 		while (result.hasNext()) {
@@ -50,7 +52,7 @@ public class StreamTest {
 		sb.append("]");
 		byte[] bytes = sb.toString().getBytes();
 		ByteArrayInputStream is = new ByteArrayInputStream(bytes);
-		DslJson<Object> json = new DslJson<Object>();
+		DeprecatedDslJson<Object> json = new DeprecatedDslJson<Object>();
 		Iterator<Long> result = json.iterateOver(Long.class, is, new byte[512]);
 		int total = 0;
 		while (result.hasNext()) {
@@ -122,7 +124,7 @@ public class StreamTest {
 		sb.append("]");
 		byte[] bytes = sb.toString().getBytes();
 		ByteArrayInputStream is = new ByteArrayInputStream(bytes);
-		DslJson<Object> json = new DslJson<Object>();
+		DeprecatedDslJson<Object> json = new DeprecatedDslJson<Object>();
 		Iterator<Obj> result = json.iterateOver(Obj.class, is, new byte[512]);
 		int total = 0;
 		while (result.hasNext()) {
@@ -155,7 +157,7 @@ public class StreamTest {
 		sb.append("]}");
 		byte[] bytes = sb.toString().getBytes();
 		ByteArrayInputStream is = new ByteArrayInputStream(bytes);
-		DslJson<Object> json = new DslJson<Object>();
+		DeprecatedDslJson<Object> json = new DeprecatedDslJson<Object>();
 		Map result = json.deserialize(Map.class, is, new byte[1024]);
 		Assert.assertNotNull(result);
 	}
@@ -171,7 +173,7 @@ public class StreamTest {
 		String largeString = sb.toString();
 		byte[] bytes = largeString.getBytes();
 		ByteArrayInputStream is = new ByteArrayInputStream(bytes);
-		DslJson<Object> json = new DslJson<Object>();
+		DeprecatedDslJson<Object> json = new DeprecatedDslJson<Object>();
 		String result = json.deserialize(String.class, is, new byte[512]);
 		Assert.assertEquals(largeString.substring(1, largeString.length() - 1), result);
 	}
@@ -190,7 +192,7 @@ public class StreamTest {
 		String largeString = sb.toString();
 		byte[] bytes = largeString.getBytes();
 		ByteArrayInputStream is = new ByteArrayInputStream(bytes);
-		DslJson<Object> json = new DslJson<Object>();
+		DeprecatedDslJson<Object> json = new DeprecatedDslJson<Object>();
 		String result = json.deserialize(String.class, is, new byte[64]);
 		Assert.assertEquals(largeString.trim().substring(1, largeString.trim().length() - 1), result);
 	}
@@ -201,7 +203,7 @@ public class StreamTest {
 		for (int i = 0; i < buf.length; i++) {
 			buf[i] = (byte) i;
 		}
-		DslJson<Object> json = new DslJson<Object>();
+		DeprecatedDslJson<Object> json = new DeprecatedDslJson<Object>();
 		JsonWriter writer = json.newWriter();
 		writer.writeBinary(buf);
 		ByteArrayInputStream is = new ByteArrayInputStream(writer.toString().getBytes("UTF-8"));
@@ -214,7 +216,7 @@ public class StreamTest {
 		String largeString = "\"abcd";
 		byte[] bytes = largeString.getBytes();
 		ByteArrayInputStream is = new ByteArrayInputStream(bytes);
-		DslJson<Object> json = new DslJson<Object>();
+		DeprecatedDslJson<Object> json = new DeprecatedDslJson<Object>();
 		try {
 			json.deserialize(String.class, is, new byte[512]);
 			Assert.fail("expecting quote error");
@@ -228,7 +230,7 @@ public class StreamTest {
 		String largeString = "\"0123456789012345678901234567890123456789012345678901234567890123456789";
 		byte[] bytes = largeString.getBytes();
 		ByteArrayInputStream is = new ByteArrayInputStream(bytes);
-		DslJson<Object> json = new DslJson<Object>();
+		DeprecatedDslJson<Object> json = new DeprecatedDslJson<Object>();
 		try {
 			json.deserialize(String.class, is, new byte[70]);
 			Assert.fail("expecting quote error");
@@ -242,7 +244,7 @@ public class StreamTest {
 		String largeString = "\"012345678901234567890123456789012345678901234567890123456789012345678";
 		byte[] bytes = largeString.getBytes();
 		ByteArrayInputStream is = new ByteArrayInputStream(bytes);
-		DslJson<Object> json = new DslJson<Object>();
+		DeprecatedDslJson<Object> json = new DeprecatedDslJson<Object>();
 		try {
 			json.deserialize(String.class, is, new byte[70]);
 			Assert.fail("expecting error");
@@ -256,7 +258,7 @@ public class StreamTest {
 		String largeString = "\"01234567890123456789012345678901234567890123456789012345678901234567890";
 		byte[] bytes = largeString.getBytes();
 		ByteArrayInputStream is = new ByteArrayInputStream(bytes);
-		DslJson<Object> json = new DslJson<Object>();
+		DeprecatedDslJson<Object> json = new DeprecatedDslJson<Object>();
 		try {
 			json.deserialize(String.class, is, new byte[70]);
 			Assert.fail("expecting quote error");
@@ -311,7 +313,7 @@ public class StreamTest {
 		sb.append("]");
 		byte[] bytes = sb.toString().getBytes();
 		ByteArrayInputStream is = new ByteArrayInputStream(bytes);
-		DslJson<Object> json = new DslJson<Object>();
+		DeprecatedDslJson<Object> json = new DeprecatedDslJson<Object>();
 		Iterator<Obj> result = json.iterateOver(Obj.class, is, new byte[512]);
 		ByteArrayOutputStream os = new ByteArrayOutputStream();
 		json.iterateOver(result, os, json.newWriter());
@@ -339,7 +341,7 @@ public class StreamTest {
 		sb.append("]");
 		byte[] bytes = sb.toString().getBytes();
 		ByteArrayInputStream is = new ByteArrayInputStream(bytes);
-		DslJson<Object> json = new DslJson<Object>();
+		DeprecatedDslJson<Object> json = new DeprecatedDslJson<Object>();
 		Iterator<Map> result = json.iterateOver(Map.class, is, new byte[512]);
 		ByteArrayOutputStream os = new ByteArrayOutputStream();
 		json.iterateOver(result, os, json.newWriter());
@@ -362,7 +364,7 @@ public class StreamTest {
 		sb.append("]");
 		byte[] bytes = sb.toString().getBytes();
 		ByteArrayInputStream is = new ByteArrayInputStream(bytes);
-		DslJson<Object> json = new DslJson<Object>();
+		DeprecatedDslJson<Object> json = new DeprecatedDslJson<Object>();
 		Iterator<Long> result = json.iterateOver(Long.class, is, new byte[512]);
 		ByteArrayOutputStream os = new ByteArrayOutputStream();
 		json.iterateOver(result, os, json.newWriter());
@@ -376,7 +378,7 @@ public class StreamTest {
 
 	@Test
 	public void streamLocationIssue() throws IOException {
-		DslJson<Object> dslJson = new DslJson<Object>();
+		DeprecatedDslJson<Object> dslJson = new DeprecatedDslJson<Object>();
 		String json = "{\"URI\":\"a94e4da8-0d14-48f2-97b3-045359aafad5\",\"ID\":\"a94e4da8-0d14-48f2-97b3-045359aafad5\",\"gE0A0Lc\":{\"URI\":\"cb172e84-60dd-4d17-b80f-372e5452fc9f\",\"p0A0Lc\":[null,{\"X\":0.0,\"Y\":0.0},{\"X\":-2.147483648E9,\"Y\":2.147483647E9},{\"X\":-1.0E9,\"Y\":1.0E9},{\"X\":1.401298464324817E-45,\"Y\":3.4028234663852886E38},{\"X\":-1.0000001192092896,\"Y\":1.0000001192092896},{\"X\":-2.000000000000345,\"Y\":1.000000000000234}],\"GA0A0LcID\":\"cb172e84-60dd-4d17-b80f-372e5452fc9f\"}}";
 		byte[] bytes = json.getBytes("UTF-8");
 		byte[] buffer = new byte[8192];
@@ -391,10 +393,10 @@ public class StreamTest {
 
 		public double y;
 
-		public void serialize(final com.dslplatform.json.JsonWriter sw, final boolean minimal) {
+		public void serialize(final JsonWriter sw, final boolean minimal) {
 			sw.writeAscii("{\"y\":");
 			com.dslplatform.json.NumberConverter.serialize(y, sw);
-			sw.writeByte(com.dslplatform.json.JsonWriter.OBJECT_END);
+			sw.writeByte(JsonWriter.OBJECT_END);
 		}
 
 		public static final com.dslplatform.json.JsonReader.ReadJsonObject<JsonPoint> JSON_READER = new com.dslplatform.json.JsonReader.ReadJsonObject<JsonPoint>() {
@@ -485,7 +487,7 @@ public class StreamTest {
 		sb.append("]}");
 		byte[] bytes = sb.toString().getBytes();
 		ByteArrayInputStream is = new ByteArrayInputStream(bytes);
-		DslJson<Object> json = new DslJson<Object>();
+		DeprecatedDslJson<Object> json = new DeprecatedDslJson<Object>();
 		JsonStreamReader reader = json.newReader(is, new byte[1024]);
 		reader.getNextToken(); // {
 		reader.getNextToken(); // "
@@ -506,7 +508,7 @@ public class StreamTest {
 		String largeString = "\"" + bd + "\"";
 		byte[] bytes = largeString.getBytes();
 		ByteArrayInputStream is = new ByteArrayInputStream(bytes);
-		DslJson<Object> json = new DslJson<Object>();
+		DeprecatedDslJson<Object> json = new DeprecatedDslJson<Object>();
 		JsonStreamReader<Object> input = json.newReader(is, new byte[1024]);
 		JsonReader.ReadObject<BigDecimal> converter = json.tryFindReader(BigDecimal.class);
 		for (int i = 0; i < 10; i++) {

@@ -1,5 +1,6 @@
 package com.dslplatform.json;
 
+import github.fastjson.JsonWriter;
 import org.junit.Assert;
 import org.junit.Test;
 

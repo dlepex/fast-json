@@ -1,11 +1,9 @@
 package com.dslplatform.json.generated.types;
 
-import com.dslplatform.json.Configuration;
-import com.dslplatform.json.DslJson;
+import com.dslplatform.json.DeprecatedDslJson;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.ServiceLoader;
 
 public class StaticJson {
 	private static final JsonSerialization json = new JsonSerialization();
@@ -19,7 +17,7 @@ public class StaticJson {
 		public int length;
 	}
 
-	public static class JsonSerialization extends DslJson<Object> {
+	public static class JsonSerialization extends DeprecatedDslJson<Object> {
 		public JsonSerialization() {
 			super(new Settings<Object>().withJavaConverters(true).includeServiceLoader());
 		}

@@ -1,5 +1,7 @@
 package com.dslplatform.json;
 
+import github.fastjson.JsonWriter;
+
 import java.awt.*;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;

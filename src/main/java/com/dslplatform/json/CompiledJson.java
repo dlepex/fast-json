@@ -9,7 +9,7 @@ import java.lang.annotation.Target;
  * Compile time data-binding annotation.
  * Objects with this annotation will have their serializers/deserializers created during project compilation.
  * They will be registered into META-INF/services/com.dslplatform.json.CompiledJson and should be loaded during
- * DslJson initialization.
+ * DeprecatedDslJson initialization.
  * <p>
  * If classes with this annotation reference another class which doesn't have this annotation, annotation processor
  * will behave as they have @CompiledJson annotation (this can be controlled via compiler option).

@@ -1,5 +1,7 @@
 package com.dslplatform.json;
 
+import github.fastjson.JsonWriter;
+
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;

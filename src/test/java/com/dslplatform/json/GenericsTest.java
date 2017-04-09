@@ -1,5 +1,7 @@
 package com.dslplatform.json;
 
+import github.fastjson.FastJsonSerializable;
+import github.fastjson.JsonWriter;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -53,7 +55,7 @@ public class GenericsTest {
 				new Generic<JsonFull[]>() {
 				}.type
 		);
-		DslJson<Object> json = new DslJson<Object>();
+		DeprecatedDslJson<Object> json = new DeprecatedDslJson<Object>();
 		for (Type t : types) {
 			Assert.assertTrue(json.canSerialize(t));
 			Assert.assertTrue(json.canDeserialize(t));
@@ -71,7 +73,7 @@ public class GenericsTest {
 
 	@Test
 	public void testListGenerics() throws IOException {
-		DslJson<Object> json = new DslJson<Object>();
+		DeprecatedDslJson<Object> json = new DeprecatedDslJson<Object>();
 		JsonWriter writer = json.newWriter();
 		List<Integer> items = Arrays.asList(1, 2);
 		json.serialize(writer, items);
@@ -84,7 +86,7 @@ public class GenericsTest {
 
 	@Test
 	public void testPrimitiveArray() throws IOException {
-		DslJson<Object> json = new DslJson<Object>();
+		DeprecatedDslJson<Object> json = new DeprecatedDslJson<Object>();
 		JsonWriter writer = json.newWriter();
 		int[] items = new int[]{1, 2};
 		json.serialize(writer, items);
@@ -94,9 +96,9 @@ public class GenericsTest {
 		Assert.assertArrayEquals(items, deserialized);
 	}
 
-	static class ArrayReader implements DslJson.ConverterFactory<JsonReader.ReadObject> {
+	static class ArrayReader implements DeprecatedDslJson.ConverterFactory<JsonReader.ReadObject> {
 		@Override
-		public JsonReader.ReadObject tryCreate(Type manifest, DslJson dslJson) {
+		public JsonReader.ReadObject tryCreate(Type manifest, DeprecatedDslJson dslJson) {
 			if (!int[][].class.equals(manifest)) return null;
 			return new JsonReader.ReadObject<int[][]>() {
 				@Override
@@ -126,9 +128,9 @@ public class GenericsTest {
 		}
 	}
 
-	static class ArrayWriter implements DslJson.ConverterFactory<JsonWriter.Serializer> {
+	static class ArrayWriter implements DeprecatedDslJson.ConverterFactory<JsonWriter.Serializer> {
 		@Override
-		public JsonWriter.Serializer tryCreate(Type manifest, DslJson dslJson) {
+		public JsonWriter.Serializer tryCreate(Type manifest, DeprecatedDslJson dslJson) {
 			if (!int[][].class.equals(manifest)) return null;
 			return new JsonWriter.Serializer<int[][]>() {
 				@Override
@@ -150,10 +152,10 @@ public class GenericsTest {
 
 	@Test
 	public void testNestedArray() throws IOException {
-		DslJson.Settings<Object> settings = new DslJson.Settings<Object>()
+		DeprecatedDslJson.Settings<Object> settings = new DeprecatedDslJson.Settings<Object>()
 				.resolveReader(new ArrayReader())
 				.resolveWriter(new ArrayWriter());
-		DslJson<Object> json = new DslJson<Object>(settings);
+		DeprecatedDslJson<Object> json = new DeprecatedDslJson<Object>(settings);
 		JsonWriter writer = json.newWriter();
 		int[][] items = new int[2][];
 		items[0] = new int[]{1, 2};

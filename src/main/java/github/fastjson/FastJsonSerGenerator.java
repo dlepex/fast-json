@@ -1,4 +1,4 @@
-package com.dslplatform.json;
+package github.fastjson;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -30,7 +30,7 @@ public class FastJsonSerGenerator {
         if (!unwrapped) {
             sb.append(String.format("jw.writeField(\"%s\"); jw.serialize(this.%s);", jsonName, f.getName()));
         } else {
-            sb.append(String.format("jw.serializeFieldsOnly(this.%s);", f.getName()));
+            sb.append(String.format("jw.serializeUnwrapped(this.%s);", f.getName()));
         }
 
         if (!isLast) {

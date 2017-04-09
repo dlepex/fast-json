@@ -39,7 +39,7 @@ public class ReaderTest {
 
 	@Test
 	public void testReaderOnInterface() throws IOException {
-		DslJson<Object> dslJson = new DslJson<Object>();
+		DeprecatedDslJson<Object> dslJson = new DeprecatedDslJson<Object>();
 		dslJson.registerReader(Implementation.class, new JsonReader.ReadObject<Implementation>() {
 			@Override
 			public Implementation read(JsonReader reader) throws IOException {
@@ -57,7 +57,7 @@ public class ReaderTest {
 
 	@Test
 	public void skipEscaped1() throws IOException {
-		DslJson<Object> dslJson = new DslJson<Object>();
+		DeprecatedDslJson<Object> dslJson = new DeprecatedDslJson<Object>();
 		byte[] input = "{\"a\":1,\"b\":\"\\\",\"c\":\"\\\\\"}".getBytes("UTF-8");
 		JsonReader reader = dslJson.newReader(input);
 		Assert.assertEquals('{', reader.getNextToken());
@@ -71,7 +71,7 @@ public class ReaderTest {
 
 	@Test
 	public void skipEscaped2() throws IOException {
-		DslJson<Object> dslJson = new DslJson<Object>();
+		DeprecatedDslJson<Object> dslJson = new DeprecatedDslJson<Object>();
 		byte[] input = "{\"a\":1,\"b\":\"\\\"\",\"c\":\"\\\\\"}".getBytes("UTF-8");
 		JsonReader reader = dslJson.newReader(input);
 		Assert.assertEquals('{', reader.getNextToken());
@@ -85,7 +85,7 @@ public class ReaderTest {
 
 	@Test
 	public void skipEscaped3() throws IOException {
-		DslJson<Object> dslJson = new DslJson<Object>();
+		DeprecatedDslJson<Object> dslJson = new DeprecatedDslJson<Object>();
 		byte[] input = "{\"a\":1,\"b\":\"\\\\\",\"c\":\"\\\\\\\"\",\"d\":\"\\\"abc\"}".getBytes("UTF-8");
 		Map<String, Object> map = dslJson.deserialize(Map.class, input, input.length);
 		Assert.assertEquals(4, map.size());
@@ -118,7 +118,7 @@ public class ReaderTest {
 		sb.append("\"");
 		String largeString = sb.toString();
 		byte[] bytes = largeString.getBytes();
-		DslJson<Object> json = new DslJson<Object>();
+		DeprecatedDslJson<Object> json = new DeprecatedDslJson<Object>();
 		try {
 			json.deserialize(String.class, bytes, bytes.length - 1);
 			Assert.fail();
@@ -131,7 +131,7 @@ public class ReaderTest {
 	public void canReadStringAtTheEndOfShortBuffer() throws IOException, InterruptedException {
 		String largeString = "\"abcdefghijklmnopq\"";
 		byte[] bytes = largeString.getBytes();
-		DslJson<Object> json = new DslJson<Object>();
+		DeprecatedDslJson<Object> json = new DeprecatedDslJson<Object>();
 		try {
 			json.deserialize(String.class, bytes, bytes.length - 1);
 			Assert.fail();

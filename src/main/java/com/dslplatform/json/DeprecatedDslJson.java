@@ -1,5 +1,7 @@
 package com.dslplatform.json;
 
+import github.fastjson.FastJsonSerializable;
+import github.fastjson.JsonWriter;
 import org.w3c.dom.Element;
 
 import java.io.ByteArrayOutputStream;
@@ -18,49 +20,10 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-/**
- * Main DSL-JSON class.
- * Easiest way to use the library is to create an DslJson&lt;Object&gt; instance and reuse it within application.
- * DslJson has optional constructor for specifying default readers/writers.
- * <p>
- * During initialization DslJson will use ServiceLoader API to load registered services.
- * This is done through `META-INF/services/com.dslplatform.json.CompiledJson` file.
- * <p>
- * DslJson can fallback to another serializer in case when it doesn't know how to handle specific type.
- * This can be specified by Fallback interface during initialization.
- * <p>
- * If you wish to use compile time databinding @CompiledJson annotation must be specified on the classes
- * and annotation processor must be configured to register those classes into services file.
- * <p>
- * Usage example:
- * <pre>
- *     DslJson&lt;Object&gt; dsl = new DslJson&lt;&lt;();
- *     dsl.serialize(instance, OutputStream);
- *     POJO pojo = dsl.deserialize(POJO.class, InputStream, new byte[1024]);
- * </pre>
- * <p>
- * For best performance use serialization API with JsonWriter which is reused.
- * For best deserialization performance prefer byte[] API instead of InputStream API.
- * If InputStream API is used, reuse the buffer instance or reuse the whole JsonStreamReader by calling reset(InputStream)
- * <p>
- * During deserialization TContext can be used to pass data into deserialized classes.
- * This is useful when deserializing domain objects which require state or service provider.
- * For example DSL Platform entities require service locator to be able to perform lazy load.
- * <p>
- * DslJson doesn't have a String or Reader API since it's optimized for processing bytes.
- * If you wish to process String, use String.getBytes("UTF-8") as argument for DslJson
- * <pre>
- *     DslJson&lt;Object&gt; dsl = new DslJson&lt;&gt;();
- *     JsonWriter writer = dsl.newWriter();
- *     dsl.serialize(writer, instance);
- *     String json = writer.toString(); //JSON as string
- *     byte[] input = json.getBytes("UTF-8");
- *     POJO pojo = dsl.deserialize(POJO.class, input, input.length);
- * </pre>
- *
- * @param <TContext> used for library specialization. If unsure, use Object
- */
-public class DslJson<TContext> implements UnknownSerializer {
+
+//TODO purge this.
+@Deprecated
+public class DeprecatedDslJson<TContext> implements UnknownSerializer {
 
     private static final Charset UTF8 = Charset.forName("UTF-8");
 
@@ -90,15 +53,15 @@ public class DslJson<TContext> implements UnknownSerializer {
     }
 
     public interface ConverterFactory<T> {
-        T tryCreate(Type manifest, DslJson dslJson);
+        T tryCreate(Type manifest, DeprecatedDslJson dslJson);
     }
 
     /**
-     * Configuration for DslJson options.
+     * Configuration for DeprecatedDslJson options.
      * By default key cache is enabled. Everything else is not configured.
      * To load `META-INF/services` call `includeServiceLoader()`
      *
-     * @param <TContext> DslJson context
+     * @param <TContext> DeprecatedDslJson context
      */
     public static class Settings<TContext> {
         private TContext context;
@@ -113,7 +76,7 @@ public class DslJson<TContext> implements UnknownSerializer {
         private final List<ConverterFactory<JsonReader.ReadObject>> readerFactories = new ArrayList<ConverterFactory<JsonReader.ReadObject>>();
 
         /**
-         * Pass in context for DslJson.
+         * Pass in context for DeprecatedDslJson.
          * Context will be available in JsonReader for objects which needs it.
          *
          * @param context context propagated to JsonReaders
@@ -137,7 +100,7 @@ public class DslJson<TContext> implements UnknownSerializer {
 
         /**
          * Will be eventually replaced with writer/reader factories.
-         * Used by DslJson to call into when trying to serialize/deserialize object which is not supported.
+         * Used by DeprecatedDslJson to call into when trying to serialize/deserialize object which is not supported.
          *
          * @param fallback how to handle unsupported type
          * @return which fallback to use in case of unsupported type
@@ -149,7 +112,7 @@ public class DslJson<TContext> implements UnknownSerializer {
         }
 
         /**
-         * DslJson can exclude some properties from resulting JSON which it can reconstruct fully from schema information.
+         * DeprecatedDslJson can exclude some properties from resulting JSON which it can reconstruct fully from schema information.
          * Eg. int with value 0 can be omitted since that is default value for the type.
          * Null values can be excluded since they are handled the same way as missing property.
          *
@@ -197,7 +160,7 @@ public class DslJson<TContext> implements UnknownSerializer {
         }
 
         /**
-         * DslJson will iterate over converter factories when requested type is unknown.
+         * DeprecatedDslJson will iterate over converter factories when requested type is unknown.
          * Registering writer converter factory allows for constructing JSON converter lazily.
          *
          * @param writer registered writer factory
@@ -210,7 +173,7 @@ public class DslJson<TContext> implements UnknownSerializer {
         }
 
         /**
-         * DslJson will iterate over converter factories when requested type is unknown.
+         * DeprecatedDslJson will iterate over converter factories when requested type is unknown.
          * Registering reader converter factory allows for constructing JSON converter lazily.
          *
          * @param reader registered reader factory
@@ -228,7 +191,7 @@ public class DslJson<TContext> implements UnknownSerializer {
          * This will pick up compile time databindings if they are available in specific folder.
          * <p>
          * Note that gradle on Android has issues with preserving that file, in which case it can be provided manually.
-         * DslJson will fall back to "expected" class name if it doesn't find anything during scanning.
+         * DeprecatedDslJson will fall back to "expected" class name if it doesn't find anything during scanning.
          *
          * @return itself
          */
@@ -241,8 +204,8 @@ public class DslJson<TContext> implements UnknownSerializer {
         }
 
         /**
-         * Configure DslJson with custom Configuration during startup.
-         * Configurations are extension points for setting up readers/writers during DslJson initialization.
+         * Configure DeprecatedDslJson with custom Configuration during startup.
+         * Configurations are extension points for setting up readers/writers during DeprecatedDslJson initialization.
          *
          * @param conf custom extensibility point
          * @return itself
@@ -271,12 +234,12 @@ public class DslJson<TContext> implements UnknownSerializer {
      * Key cache will be enables, values cache will be disabled.
      * Default ServiceLoader.load method will be used to setup services from META-INF
      */
-    public DslJson() {
+    public DeprecatedDslJson() {
         this(new Settings<TContext>().includeServiceLoader());
     }
 
     /**
-     * Will be removed. Use DslJson(Settings) instead.
+     * Will be removed. Use DeprecatedDslJson(Settings) instead.
      * Fully configurable entry point.
      *
      * @param context       context instance which can be provided to deserialized objects. Use null if not sure
@@ -287,7 +250,7 @@ public class DslJson<TContext> implements UnknownSerializer {
      * @param serializers   additional serializers/deserializers which will be immediately registered into readers/writers
      */
     @Deprecated
-    public DslJson(
+    public DeprecatedDslJson(
             final TContext context,
             final boolean javaSpecifics,
             final Fallback<TContext> fallback,
@@ -310,7 +273,7 @@ public class DslJson<TContext> implements UnknownSerializer {
      *
      * @param settings DSL-JSON configuration
      */
-    public DslJson(Settings<TContext> settings) {
+    public DeprecatedDslJson(Settings<TContext> settings) {
         if (settings == null) throw new IllegalArgumentException("settings can't be null");
         this.context = settings.context;
         this.fallback = settings.fallback;
@@ -548,7 +511,7 @@ public class DslJson<TContext> implements UnknownSerializer {
         return new JsonReader<TContext>(bytes, context, keyCache, valuesCache);
     }
 
-    private static void loadDefaultConverters(final DslJson json, final String name) {
+    private static void loadDefaultConverters(final DeprecatedDslJson json, final String name) {
         try {
             ClassLoader loader = Thread.currentThread().getContextClassLoader();
             Class<?> external = loader.loadClass(name);
@@ -559,7 +522,7 @@ public class DslJson<TContext> implements UnknownSerializer {
         }
     }
 
-    static void registerJavaSpecifics(final DslJson json) {
+    static void registerJavaSpecifics(final DeprecatedDslJson json) {
         json.registerReader(java.awt.geom.Point2D.Double.class, JavaGeomConverter.LocationReader);
         json.registerReader(java.awt.geom.Point2D.class, JavaGeomConverter.LocationReader);
         json.registerWriter(java.awt.geom.Point2D.class, JavaGeomConverter.LocationWriter);
@@ -707,7 +670,7 @@ public class DslJson<TContext> implements UnknownSerializer {
      * <p>
      * If you wish to use alternative writer for specific type, register it manually with something along the lines of
      * <pre>
-     *     DslJson dslJson = ...
+     *     DeprecatedDslJson dslJson = ...
      *     dslJson.registerReader(Interface.class, dslJson.tryFindWriter(Implementation.class));
      * </pre>
      *
@@ -735,7 +698,7 @@ public class DslJson<TContext> implements UnknownSerializer {
      * <p>
      * If you wish to use alternative writer for specific type, register it manually with something along the lines of
      * <pre>
-     *     DslJson dslJson = ...
+     *     DeprecatedDslJson dslJson = ...
      *     dslJson.registerReader(Interface.class, dslJson.tryFindWriter(Implementation.class));
      * </pre>
      *
@@ -886,7 +849,7 @@ public class DslJson<TContext> implements UnknownSerializer {
     }
 
     /**
-     * Check if DslJson knows how to serialize a type.
+     * Check if DeprecatedDslJson knows how to serialize a type.
      * It will check if a writer for such type exists or can be used.
      *
      * @param manifest type to check
@@ -937,7 +900,7 @@ public class DslJson<TContext> implements UnknownSerializer {
     }
 
     /**
-     * Check if DslJson knows how to deserialize a type.
+     * Check if DeprecatedDslJson knows how to deserialize a type.
      * It will check if a reader for such type exists or can be used.
      *
      * @param manifest type to check
@@ -1020,7 +983,7 @@ public class DslJson<TContext> implements UnknownSerializer {
      * <p>
      * Since JSON is often though of as a series of char,
      * most libraries will convert inputs into a sequence of chars and do processing on them.
-     * DslJson will treat input as a sequence of bytes which allows for various optimizations.
+     * DeprecatedDslJson will treat input as a sequence of bytes which allows for various optimizations.
      *
      * @param manifest  target type
      * @param body      input JSON
@@ -1092,7 +1055,7 @@ public class DslJson<TContext> implements UnknownSerializer {
      * <p>
      * Since JSON is often though of as a series of char,
      * most libraries will convert inputs into a sequence of chars and do processing on them.
-     * DslJson will treat input as a sequence of bytes which allows for various optimizations.
+     * DeprecatedDslJson will treat input as a sequence of bytes which allows for various optimizations.
      *
      * @param manifest target type
      * @param body     input JSON
@@ -1127,7 +1090,7 @@ public class DslJson<TContext> implements UnknownSerializer {
             return fallback.deserialize(context, manifest, body, size);
         }
         throw new IOException("Unable to find reader for provided type: " + manifest + " and fallback serialization is not registered.\n" +
-                "Try initializing DslJson with custom fallback in case of unsupported objects or register specified type using registerReader into " + getClass());
+                "Try initializing DeprecatedDslJson with custom fallback in case of unsupported objects or register specified type using registerReader into " + getClass());
     }
 
     @SuppressWarnings("unchecked")
@@ -1240,7 +1203,7 @@ public class DslJson<TContext> implements UnknownSerializer {
             }
         }
         return new IOException("Unable to find reader for provided type: " + manifest + " and fallback serialization is not registered.\n" +
-                "Try initializing DslJson with custom fallback in case of unsupported objects or register specified type using registerReader into " + getClass());
+                "Try initializing DeprecatedDslJson with custom fallback in case of unsupported objects or register specified type using registerReader into " + getClass());
     }
 
     /**
@@ -1249,7 +1212,7 @@ public class DslJson<TContext> implements UnknownSerializer {
      * <p>
      * Since JSON is often though of as a series of char,
      * most libraries will convert inputs into a sequence of chars and do processing on them.
-     * DslJson will treat input as a sequence of bytes which allows for various optimizations.
+     * DeprecatedDslJson will treat input as a sequence of bytes which allows for various optimizations.
      *
      * @param manifest  target type
      * @param body      input JSON
@@ -1317,9 +1280,9 @@ public class DslJson<TContext> implements UnknownSerializer {
      * <p>
      * Since JSON is often though of as a series of char,
      * most libraries will convert inputs into a sequence of chars and do processing on them.
-     * DslJson will treat input as a sequence of bytes which allows for various optimizations.
+     * DeprecatedDslJson will treat input as a sequence of bytes which allows for various optimizations.
      * <p>
-     * When working on InputStream DslJson will process JSON in chunks of byte[] inputs.
+     * When working on InputStream DeprecatedDslJson will process JSON in chunks of byte[] inputs.
      * Provided buffer will be used as input for partial processing.
      * <p>
      * For best performance buffer should be reused.
@@ -1387,9 +1350,9 @@ public class DslJson<TContext> implements UnknownSerializer {
      * <p>
      * Since JSON is often though of as a series of char,
      * most libraries will convert inputs into a sequence of chars and do processing on them.
-     * DslJson will treat input as a sequence of bytes which allows for various optimizations.
+     * DeprecatedDslJson will treat input as a sequence of bytes which allows for various optimizations.
      * <p>
-     * When working on InputStream DslJson will process JSON in chunks of byte[] inputs.
+     * When working on InputStream DeprecatedDslJson will process JSON in chunks of byte[] inputs.
      * Provided buffer will be used as input for partial processing.
      * <p>
      * For best performance buffer should be reused.
@@ -1467,9 +1430,9 @@ public class DslJson<TContext> implements UnknownSerializer {
      * <p>
      * Since JSON is often though of as a series of char,
      * most libraries will convert inputs into a sequence of chars and do processing on them.
-     * DslJson will treat input as a sequence of bytes which allows for various optimizations.
+     * DeprecatedDslJson will treat input as a sequence of bytes which allows for various optimizations.
      * <p>
-     * When working on InputStream DslJson will process JSON in chunks of byte[] inputs.
+     * When working on InputStream DeprecatedDslJson will process JSON in chunks of byte[] inputs.
      * Provided buffer will be used as input for partial processing.
      * <p>
      * For best performance buffer should be reused.
@@ -1507,7 +1470,7 @@ public class DslJson<TContext> implements UnknownSerializer {
             return fallback.deserialize(context, manifest, json.streamFromStart());
         }
         throw new IOException("Unable to find reader for provided type: " + manifest + " and fallback serialization is not registered.\n" +
-                "Try initializing DslJson with custom fallback in case of unsupported objects or register specified type using registerReader into " + getClass());
+                "Try initializing DeprecatedDslJson with custom fallback in case of unsupported objects or register specified type using registerReader into " + getClass());
     }
 
     private static final Iterator EMPTY_ITERATOR = new Iterator() {
@@ -1528,7 +1491,7 @@ public class DslJson<TContext> implements UnknownSerializer {
 
     /**
      * Streaming API for collection deserialization.
-     * DslJson will create iterator based on provided manifest info.
+     * DeprecatedDslJson will create iterator based on provided manifest info.
      * It will attempt to deserialize from stream on each next() invocation.
      * <p>
      * Useful for processing very large streams if only one instance from collection is required at once.
