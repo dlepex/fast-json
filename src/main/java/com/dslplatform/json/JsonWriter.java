@@ -53,9 +53,16 @@ public final class JsonWriter extends Writer {
         this(new byte[size], unknownSerializer);
     }
 
-    JsonWriter(final byte[] result, final UnknownSerializer unknownSerializer) {
+    public JsonWriter(final byte[] result, final UnknownSerializer unknownSerializer) {
         this.result = result;
         this.unknownSerializer = unknownSerializer;
+    }
+
+    public JsonWriter(final byte[] result) {
+        this.result = result;
+        this.unknownSerializer = (w, o) -> {
+            throw new IOException("serializing unknown obj: " + o.getClass());
+        };
     }
 
     public static final byte OBJECT_START = '{';
