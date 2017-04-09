@@ -291,6 +291,14 @@ public final class JsonWriter extends Writer {
         position += len;
     }
 
+    public final void writeAsciiOrNull(final String str) {
+        if (str == null) {
+            writeNull();
+            return;
+        }
+        writeAscii(str);
+    }
+
     @SuppressWarnings("deprecation")
     public final void writeAscii(final String str, final int len) {
         if (position + len >= result.length) {
@@ -658,7 +666,6 @@ public final class JsonWriter extends Writer {
         BoolConverter.serializeNullable(value, this);
     }
 
-
     public void serialize(boolean value) {
         BoolConverter.serialize(value, this);
     }
@@ -670,7 +677,7 @@ public final class JsonWriter extends Writer {
         }
         serializeAsObj(map.entrySet().iterator(), (w, e) -> { w.writeField(e.getKey()); w.serialize(e.getValue());});
     }
-    
+
     public <T> void serialize(Map<String, T> map, Serializer<T> ser,  boolean ignoreNulls) {
         if (map == null) {
             writeNull();
@@ -687,4 +694,11 @@ public final class JsonWriter extends Writer {
     public <T> void serialize(Map<String, T> map, Serializer<T> ser) {
         serialize(map, ser, false);
     }
+
+    public static final Serializer<String> strSerializer = JsonWriter::serialize;
+    public static final Serializer<String> asciiSerializer = JsonWriter::writeAsciiOrNull;
+    public static final Serializer<Integer> intSerializer = JsonWriter::serialize;
+    public static final Serializer<Long> longSerializer = JsonWriter::serialize;
+    public static final Serializer<Double> doubleSerializer = JsonWriter::serialize;
+    public static final Serializer<Boolean> boolSerializer = JsonWriter::serialize;
 }
