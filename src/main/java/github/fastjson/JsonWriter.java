@@ -524,7 +524,9 @@ public final class JsonWriter extends Writer {
     // New methods:
 
     public void writeField(String name) {
+        writeByte(QUOTE);
         writeAscii(name);
+        writeByte(QUOTE);
         writeByte(SEMI);
     }
 
