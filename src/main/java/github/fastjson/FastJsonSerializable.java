@@ -7,9 +7,7 @@ package github.fastjson;
 public interface FastJsonSerializable {
 
     default void serialize(JsonWriter jw, boolean flag) { // flag param is never used.
-        jw.writeByte(JsonWriter.OBJECT_START);
-        serializeUnwrapped(jw);
-        jw.writeByte(JsonWriter.OBJECT_END);
+        jw.serialize(this);
     }
 
     // prefer to implement this method

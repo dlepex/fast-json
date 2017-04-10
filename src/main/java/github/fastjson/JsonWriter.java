@@ -49,7 +49,7 @@ public final class JsonWriter extends Writer {
     //// pre-allocated lambdas :
 
     public static final Serializer<String> serOfString = JsonWriter::serialize;
-    public static final Serializer<String> serOfAscii = JsonWriter::writeAsciiOrNull;
+    public static final Serializer<String> serOfAscii = JsonWriter::serializeAscii;
     public static final Serializer<Integer> serOfInt = JsonWriter::serialize;
     public static final Serializer<Long> serOfLong = JsonWriter::serialize;
     public static final Serializer<Double> serOfDouble = JsonWriter::serialize;
@@ -307,12 +307,14 @@ public final class JsonWriter extends Writer {
         position += len;
     }
 
-    public final void writeAsciiOrNull(final String str) {
+    public final void serializeAscii(final String str) {
         if (str == null) {
             writeNull();
             return;
         }
+        writeByte(QUOTE);
         writeAscii(str);
+        writeByte(QUOTE);
     }
 
     @SuppressWarnings("deprecation")
@@ -632,7 +634,9 @@ public final class JsonWriter extends Writer {
 
     public void serialize(FastJsonSerializable o) {
         if (o != null) {
-            o.serialize(this, false);
+            writeByte(JsonWriter.OBJECT_START);
+            serializeUnwrapped(o);
+            writeByte(JsonWriter.OBJECT_END);
         } else {
             writeNull();
         }
@@ -641,9 +645,13 @@ public final class JsonWriter extends Writer {
     public void serializeUnwrapped(FastJsonSerializable o) {
         if (o != null) {
             o.serializeUnwrapped(this);
+            // comma normalization.
+            final int lastPos = position - 1;
+            if (result[lastPos] == COMMA) {
+                position = lastPos;
+            }
         }
     }
-
 
     public <T>  void serializeOrNull(T o, Serializer<T> w) {
         if (o != null) {
@@ -652,6 +660,7 @@ public final class JsonWriter extends Writer {
             writeNull();
         }
     }
+
     public void serialize(String value) {
        StringConverter.serializeNullable(value, this);
     }
@@ -713,8 +722,6 @@ public final class JsonWriter extends Writer {
         });
     }
 
-
-
     public <K, T> void serialize(Map<K, T> map, Function<K, String> stringer, Serializer<T> ser) {
         if (map == null) {
             writeNull();
@@ -727,8 +734,6 @@ public final class JsonWriter extends Writer {
         });
     }
 
-
-
     public <K, T> void serializeUnwrapped(Map<K, T> map, Function<K, String> stringer, Serializer<T> ser) {
         serializeUnwrapped(map.entrySet().iterator(), (w, e) -> {
             T val = e.getValue();
@@ -740,5 +745,4 @@ public final class JsonWriter extends Writer {
     public <T> void serializeUnwrapped(Map<String, T> map, Serializer<T> ser) {
         serializeUnwrapped(map, Object::toString, ser);
     }
-
 }
