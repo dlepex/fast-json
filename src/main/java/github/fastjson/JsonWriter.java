@@ -459,11 +459,11 @@ public final class JsonWriter extends Writer {
         writeByte(ARRAY_START);
         if (array.length != 0) {
             T item = array[0];
-            serializeOrNull(item, ser);
+            serializeWith(item, ser);
             for (int i = 1; i < array.length; i++) {
                 writeByte(COMMA);
                 item = array[i];
-                serializeOrNull(item, ser);
+                serializeWith(item, ser);
             }
         }
         writeByte(ARRAY_END);
@@ -477,11 +477,11 @@ public final class JsonWriter extends Writer {
         writeByte(ARRAY_START);
         if (list.size() != 0) {
             T item = list.get(0);
-            serializeOrNull(item, ser);
+            serializeWith(item, ser);
             for (int i = 1; i < list.size(); i++) {
                 writeByte(COMMA);
                 item = list.get(i);
-                serializeOrNull(item, ser);
+                serializeWith(item, ser);
             }
         }
         writeByte(ARRAY_END);
@@ -496,11 +496,11 @@ public final class JsonWriter extends Writer {
         if (!collection.isEmpty()) {
             final Iterator<T> it = collection.iterator();
             T item = it.next();
-            serializeOrNull(item, ser);
+            serializeWith(item, ser);
             while (it.hasNext()) {
                 writeByte(COMMA);
                 item = it.next();
-                serializeOrNull(item, ser);
+                serializeWith(item, ser);
             }
         }
         writeByte(ARRAY_END);
@@ -569,10 +569,10 @@ public final class JsonWriter extends Writer {
             List<T> list = (List<T>) iter;
             int size = list.size();
             if (size != 0) {
-                serializeOrNull(list.get(0), ser);
+                serializeWith(list.get(0), ser);
                 for (int i = 1; i < size; i++) {
                     writeByte(COMMA);
-                    serializeOrNull(list.get(i), ser);
+                    serializeWith(list.get(i), ser);
                 }
             }
             writeByte(ARRAY_END);
@@ -623,10 +623,10 @@ public final class JsonWriter extends Writer {
             return;
         }
         if (iter.hasNext()) {
-            serializeOrNull(iter.next(), w);
+            serializeWith(iter.next(), w);
             iter.forEachRemaining(v -> {
                 writeByte(COMMA);
-                serializeOrNull(v, w);
+                serializeWith(v, w);
             });
         }
     }
@@ -634,9 +634,7 @@ public final class JsonWriter extends Writer {
 
     public void serialize(FastJsonSerializable o) {
         if (o != null) {
-            writeByte(JsonWriter.OBJECT_START);
-            serializeUnwrapped(o);
-            writeByte(JsonWriter.OBJECT_END);
+            o.serialize(this, false);
         } else {
             writeNull();
         }
@@ -645,15 +643,19 @@ public final class JsonWriter extends Writer {
     public void serializeUnwrapped(FastJsonSerializable o) {
         if (o != null) {
             o.serializeUnwrapped(this);
-            // comma normalization.
-            final int lastPos = position - 1;
-            if (result[lastPos] == COMMA) {
-                position = lastPos;
-            }
+            backIfSeparator();
         }
     }
 
-    public <T>  void serializeOrNull(T o, Serializer<T> w) {
+    // This is needed because code-gen is not clever enough
+    public void backIfSeparator() {
+        final int lastPos = position - 1;
+        if (result[lastPos] == COMMA) {
+            position = lastPos;
+        }
+    }
+
+    public <T>  void serializeWith(T o, Serializer<T> w) {
         if (o != null) {
             w.write(this, o);
         } else {
@@ -718,7 +720,7 @@ public final class JsonWriter extends Writer {
         }
         serializeAsObj(map.entrySet().iterator(), (w, e) -> {
             w.writeField(e.getKey());
-            serializeOrNull(e.getValue(), ser);
+            serializeWith(e.getValue(), ser);
         });
     }
 
@@ -730,7 +732,7 @@ public final class JsonWriter extends Writer {
         serializeAsObj(map.entrySet().iterator(), (w, e) -> {
             T val = e.getValue();
             w.writeField(stringer.apply(e.getKey()));
-            serializeOrNull(val, ser);
+            serializeWith(val, ser);
         });
     }
 
@@ -738,7 +740,7 @@ public final class JsonWriter extends Writer {
         serializeUnwrapped(map.entrySet().iterator(), (w, e) -> {
             T val = e.getValue();
             w.writeField(stringer.apply(e.getKey()));
-            serializeOrNull(val, ser);
+            serializeWith(val, ser);
         });
     }
 
